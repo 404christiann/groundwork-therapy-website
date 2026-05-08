@@ -2,145 +2,89 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
   const line2Ref = useRef<HTMLSpanElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.3 });
+      const tl = gsap.timeline({ delay: 0.5 });
 
-      tl.fromTo(
-        line1Ref.current,
-        { opacity: 0, y: 60, skewY: 3 },
-        { opacity: 1, y: 0, skewY: 0, duration: 1, ease: "power3.out" }
-      )
-        .fromTo(
-          line2Ref.current,
-          { opacity: 0, y: 60, skewY: 3 },
-          { opacity: 1, y: 0, skewY: 0, duration: 1, ease: "power3.out" },
-          "-=0.7"
-        )
-        .fromTo(
-          subtitleRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-          "-=0.4"
-        )
-        .fromTo(
-          ctaRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-          "-=0.3"
-        )
-        .fromTo(
-          scrollIndicatorRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.6 },
-          "-=0.1"
-        );
+      tl.fromTo(line1Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" })
+        .fromTo(line2Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" }, "-=0.8")
+        .fromTo(taglineRef.current, { opacity: 0 }, { opacity: 1, duration: 0.9 }, "-=0.3")
+        .fromTo(descRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, "-=0.5")
+        .fromTo(scrollHintRef.current, { opacity: 0 }, { opacity: 0.4, duration: 0.7 }, "-=0.2");
 
-      // Floating scroll indicator
-      gsap.to(scrollIndicatorRef.current, {
-        y: 8,
-        repeat: -1,
-        yoyo: true,
-        duration: 1.4,
-        ease: "sine.inOut",
-        delay: 1.8,
-      });
+      gsap.to(scrollHintRef.current, { y: 7, repeat: -1, yoyo: true, duration: 1.6, ease: "sine.inOut", delay: 2.2 });
     }, containerRef);
 
     return () => ctx.revert();
   }, []);
 
-  const handleScroll = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex flex-col items-center justify-center bg-[var(--warm-white)] px-6 overflow-hidden"
+      className="relative min-h-screen flex flex-col"
+      style={{ background: "#F0E0F4" }}
     >
-      {/* Background texture / organic blob */}
+      {/* Soft depth gradient overlay */}
       <div
-        className="absolute top-[-10%] right-[-15%] w-[600px] h-[600px] rounded-full opacity-[0.06] pointer-events-none"
-        style={{ background: "var(--teal-mid)" }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 75% 60% at 80% 10%, rgba(255,255,255,0.35) 0%, transparent 65%)" }}
       />
       <div
-        className="absolute bottom-[-5%] left-[-10%] w-[400px] h-[400px] rounded-full opacity-[0.04] pointer-events-none"
-        style={{ background: "var(--gold)" }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 50% 40% at 10% 90%, rgba(186,147,210,0.18) 0%, transparent 60%)" }}
       />
 
-      <div className="relative z-10 text-center max-w-4xl">
-        {/* Eyebrow */}
-        <motion.p
-          initial={{ opacity: 0, letterSpacing: "0.3em" }}
-          animate={{ opacity: 1, letterSpacing: "0.2em" }}
-          transition={{ duration: 1, delay: 0.1 }}
-          className="text-xs uppercase tracking-[0.2em] text-[var(--teal-light)] mb-6"
-        >
-          Therapy for Teens & Adults · Online Sessions Available
-        </motion.p>
+      <div className="relative z-10 flex flex-col justify-between min-h-screen px-8 md:px-14 pb-14 pt-32">
+        <div className="mt-auto">
+          <h1
+            className="leading-[0.95] select-none"
+            style={{ fontFamily: "var(--font-playfair)", maxWidth: "calc(100vw - 10rem)" }}
+          >
+            <span
+              ref={line1Ref}
+              className="block opacity-0"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 6.5rem)", color: "#3E3842" }}
+            >
+              Where insight
+            </span>
+            <span
+              ref={line2Ref}
+              className="block opacity-0 italic pt-2.5"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 6.5rem)", color: "#7F6D8B" }}
+            >
+              becomes change.
+            </span>
+          </h1>
+        </div>
 
-        {/* Main headline */}
-        <h1
-          className="overflow-hidden leading-tight mb-8"
-          style={{ fontFamily: "var(--font-playfair)" }}
-        >
-          <span
-            ref={line1Ref}
-            className="block text-5xl md:text-7xl lg:text-8xl text-[var(--teal-deep)] opacity-0"
-          >
-            Ground Work
-          </span>
-          <span
-            ref={line2Ref}
-            className="block text-5xl md:text-7xl lg:text-8xl text-[var(--text-mid)] opacity-0 italic"
-          >
-            Therapy
-          </span>
-        </h1>
-
-        <p
-          ref={subtitleRef}
-          className="opacity-0 text-lg md:text-xl text-[var(--text-mid)] max-w-xl mx-auto leading-relaxed mb-12"
-        >
-          Where insight turns into real, grounded change.
-        </p>
-
-        <div ref={ctaRef} className="opacity-0 flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => handleScroll("#contact")}
-            className="px-8 py-4 rounded-full bg-[var(--teal-deep)] text-white text-sm tracking-wider uppercase hover:bg-[var(--teal-mid)] transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-          >
-            Free 20-Min Consultation
-          </button>
-          <button
-            onClick={() => handleScroll("#about")}
-            className="px-8 py-4 rounded-full border border-[var(--teal-deep)] text-[var(--teal-deep)] text-sm tracking-wider uppercase hover:bg-[var(--cream)] transition-all duration-300"
-          >
-            Learn More
-          </button>
+        <div className="mt-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <p ref={taglineRef} className="opacity-0 text-xs uppercase tracking-[0.25em]" style={{ color: "#BAA7B9" }}>
+            Ground Work Therapy · Online Sessions Available
+          </p>
+          <p ref={descRef} className="opacity-0 text-base leading-relaxed max-w-xs md:text-right" style={{ color: "#5A4D61" }}>
+            I&apos;m a licensed therapist working with teens and adults in California. Grounded in ACT, CBT & DBT.
+          </p>
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <div
-        ref={scrollIndicatorRef}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 cursor-pointer"
-        onClick={() => handleScroll("#about")}
+        ref={scrollHintRef}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer z-10"
+        onClick={() => document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" })}
+        style={{ color: "#BAA7B9" }}
       >
-        <ArrowDown size={20} className="text-[var(--text-light)]" />
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3v14M10 17l-5-5M10 17l5-5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </div>
     </section>
   );
