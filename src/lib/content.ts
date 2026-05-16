@@ -50,4 +50,5 @@ export const NAV_LINKS = [
   { label: "About", href: "#about" },
   { label: "Approach", href: "#approach" },
   { label: "Services", href: "#services" },
+  { label: "FAQ", href: "#faq" },
 ];

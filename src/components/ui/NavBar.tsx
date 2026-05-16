@@ -11,6 +11,7 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [onHero, setOnHero] = useState(true);
   const logoRef = useRef<HTMLDivElement>(null);
+  const logoSrc = "/images/newlogo_newfont_header_tone.png";
 
   useEffect(() => {
     const onScroll = () => setOnHero(window.scrollY < 10);
@@ -60,11 +61,11 @@ export default function NavBar() {
           >
             <div ref={logoRef} className="opacity-0 transition-all duration-300">
               <Image
-                src="/images/logo-v3.png"
+                src={logoSrc}
                 alt="Ground Work Therapy"
                 width={2048}
                 height={2048}
-                className="h-36 w-auto md:h-48 invert opacity-80"
+                className="h-36 w-auto md:h-48"
                 priority
               />
             </div>
@@ -121,11 +122,11 @@ export default function NavBar() {
             {/* Logo */}
             <div className="flex justify-center mt-4 mb-10">
               <Image
-                src="/images/logo-v3.png"
+                src={logoSrc}
                 alt="Ground Work Therapy"
                 width={2048}
                 height={2048}
-                className="h-40 w-auto invert opacity-80"
+                className="h-40 w-auto"
               />
             </div>
 

@@ -76,7 +76,7 @@ export default function Consultation() {
     <section
       ref={sectionRef}
       className="py-24 md:py-36 px-8 md:px-14 relative overflow-hidden"
-      style={{ background: "#F0EEF1" }}
+      style={{ background: "#D3DADA" }}
     >
       {/* Subtle background glow */}
       <div
@@ -88,7 +88,7 @@ export default function Consultation() {
 
         {/* Header — centered */}
         <div ref={headingRef} className="opacity-0 text-center mb-16 md:mb-20">
-          <p className="text-xs uppercase tracking-[0.3em] mb-6" style={{ color: "#7F6D8B" }}>
+          <p className="text-lg uppercase tracking-[0.25em] mb-6" style={{ color: "#7F6D8B", fontFamily: "var(--font-playfair)" }}>
             Is this you?
           </p>
           <h2
@@ -109,20 +109,16 @@ export default function Consultation() {
           {IDEAL_TRAITS.map((trait) => (
             <div
               key={trait.num}
-              className="trait-card opacity-0 rounded-2xl p-6 flex flex-col gap-3"
-              style={{ background: "#ffffff", border: "1px solid #D3DADA" }}
+              className="trait-card opacity-0 rounded-2xl p-8 flex flex-col gap-6"
+              style={{ background: "#F0EEF1", border: "1px solid #BAA7B9" }}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs tabular-nums" style={{ color: "#3E3842", opacity: 0.4 }}>{trait.num}</span>
-                <div className="w-4 h-px" style={{ background: "#BAA7B9", opacity: 0.4 }} />
-              </div>
-              <p
-                className="text-base font-medium leading-snug"
+              <h3
+                className="text-xl md:text-2xl leading-snug"
                 style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
               >
                 {trait.heading}
-              </p>
-              <p className="text-sm leading-relaxed" style={{ color: "rgba(62,56,66,0.65)" }}>
+              </h3>
+              <p className="leading-relaxed text-sm" style={{ color: "#5A4D61" }}>
                 {trait.body}
               </p>
             </div>
@@ -131,7 +127,7 @@ export default function Consultation() {
 
         {/* CTA */}
         <div ref={ctaRef} className="opacity-0 flex flex-col items-center gap-5 text-center">
-          <p className="text-sm" style={{ color: "rgba(62,56,66,0.55)" }}>
+          <p className="text-xl md:text-2xl" style={{ color: "rgba(62,56,66,0.65)", fontFamily: "var(--font-playfair)" }}>
             If this sounds like you, I&apos;d love to connect.
           </p>
           <button

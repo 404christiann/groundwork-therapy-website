@@ -12,6 +12,10 @@
   --text-light: #7F6D8B;
   --gold: #C4C484;
   --gold-light: #DDDFA8;
+
+  /* Heading font alias — points to Nunito so all components using
+     var(--font-playfair) automatically get Nunito with no component edits */
+  --font-playfair: var(--font-geist-sans);
 }
 
 @theme inline {
@@ -38,6 +42,15 @@ body {
   background-color: var(--warm-white);
   color: var(--text-dark);
   -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Nunito headings — bold weight, tight leading, no extra tracking */
+h1, h2, h3 {
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 ::selection {

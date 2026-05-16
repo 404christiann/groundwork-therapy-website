@@ -186,7 +186,7 @@ export default function Services() {
       <section id="services" ref={sectionRef} className="py-24 md:py-36 bg-[var(--warm-white)]">
         <div className="px-8 md:px-14 mb-14 md:mb-20">
           <div className="max-w-5xl mx-auto">
-            <p className="text-sm uppercase tracking-[0.25em] mb-6" style={{ color: "#BAA7B9" }}>Specialties</p>
+            <p className="text-lg uppercase tracking-[0.25em] mb-6" style={{ color: "#BAA7B9", fontFamily: "var(--font-playfair)" }}>Specialties</p>
             <h2
               className="text-4xl md:text-5xl lg:text-6xl leading-[1.05]"
               style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}

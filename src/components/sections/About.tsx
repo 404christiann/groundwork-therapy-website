@@ -8,10 +8,10 @@ import Image from "next/image";
 gsap.registerPlugin(ScrollTrigger);
 
 const CREDENTIALS = [
-  { tag: "USF", detail: "B.S. Psychology" },
-  { tag: "UCLA MSW", detail: "Health & Mental Health" },
-  { tag: "Harbor UCLA", detail: "CalWORKs Program" },
-  { tag: "Didi Hirsch", detail: "High Acuity Clinical Work" },
+  { tag: "University of San Francisco", detail: "B.S. Psychology" },
+  { tag: "University of California, Los Angeles", detail: "Master of Social Work" },
+  { tag: "Harbor UCLA Medical Center", detail: "CalWORKs Program" },
+  { tag: "Didi Hirsch Mental Health Services", detail: "High Acuity Clinical Work" },
 ];
 
 export default function About() {
@@ -45,7 +45,7 @@ export default function About() {
       <div className="max-w-7xl mx-auto px-8 md:px-14">
 
         {/* Eyebrow */}
-        <p className="text-base uppercase tracking-[0.25em] text-[var(--teal-light)] mb-12">
+        <p className="text-lg uppercase tracking-[0.25em] text-[var(--teal-light)] mb-12" style={{ fontFamily: "var(--font-playfair)" }}>
           About
         </p>
 

@@ -67,7 +67,7 @@ export default function Contact() {
 
         {/* Left */}
         <div ref={leftRef} className="opacity-0">
-          <p className="text-xs uppercase tracking-[0.3em] mb-6 font-semibold" style={{ color: "#3E3842", opacity: 0.55 }}>
+          <p className="text-lg uppercase tracking-[0.25em] mb-6" style={{ color: "#3E3842", opacity: 0.65, fontFamily: "var(--font-playfair)" }}>
             Get in Touch
           </p>
           <h2

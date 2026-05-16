@@ -67,10 +67,10 @@ export default function Hero() {
         </div>
 
         <div className="mt-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <p ref={taglineRef} className="opacity-0 text-xs uppercase tracking-[0.25em]" style={{ color: "#BAA7B9" }}>
+          <p ref={taglineRef} className="opacity-0 text-sm md:text-base leading-relaxed whitespace-nowrap" style={{ color: "#5A4D61" }}>
             Ground Work Therapy · Online Sessions Available
           </p>
-          <p ref={descRef} className="opacity-0 text-base leading-relaxed max-w-xs md:text-right" style={{ color: "#5A4D61" }}>
+          <p ref={descRef} className="opacity-0 text-base md:text-lg leading-relaxed max-w-xs md:text-right" style={{ color: "#5A4D61" }}>
             I&apos;m a licensed therapist working with teens and adults in California. Grounded in ACT, CBT & DBT.
           </p>
         </div>

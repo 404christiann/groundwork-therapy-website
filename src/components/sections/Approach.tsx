@@ -9,24 +9,24 @@ gsap.registerPlugin(ScrollTrigger);
 const PILLARS = [
   {
     num: "01",
-    label: "ACT",
-    name: "Acceptance & Commitment Therapy",
+    label: "",
+    name: "Resilience over Perfection",
     description:
-      "Notice and step back from unhelpful thought loops instead of fighting them. ACT builds psychological flexibility so your values, not your anxiety, drive your choices.",
+      "Realizing that a sink of dirty dishes or a \"messy\" day isn't a moral failure.",
   },
   {
     num: "02",
-    label: "CBT",
-    name: "Cognitive Behavioral Therapy",
+    label: "",
+    name: "Presence over Pressure",
     description:
-      "Identify and shift the thought patterns keeping you stuck. Practical, evidence based work that creates real, measurable change in how you think and respond.",
+      "Moving from the \"frozen\" state of survival mode to actually owning your day.",
   },
   {
     num: "03",
-    label: "DBT",
-    name: "Dialectical Behavior Therapy",
+    label: "",
+    name: "Deeper Connections",
     description:
-      "Build concrete tools to regulate emotions, tolerate distress, and navigate relationships with more ease. DBT is a practical toolkit for life's hardest moments.",
+      "Having the emotional bandwidth to be curious about the people you love, rather than just reacting to them.",
   },
 ];
 
@@ -66,14 +66,13 @@ export default function Approach() {
 
         {/* Header */}
         <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <p className="text-sm uppercase tracking-[0.25em] mb-6" style={{ color: "#7F6D8B" }}>My Approach</p>
           <h2
             className="text-4xl md:text-5xl lg:text-6xl leading-[1.05]"
             style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
           >
-            Science meets
+            When the work
             <br />
-            <span className="italic" style={{ color: "#7F6D8B" }}>real connection.</span>
+            <span className="italic" style={{ color: "#7F6D8B" }}>starts to click.</span>
           </h2>
         </div>
 
@@ -92,11 +91,6 @@ export default function Approach() {
               className="pillar-card opacity-0 flex flex-col gap-6 p-8 rounded-2xl"
               style={{ background: "#F0EEF1", border: "1px solid #BAA7B9" }}
             >
-              <div className="flex items-start justify-between">
-                <span className="text-xs tabular-nums" style={{ color: "#BAA7B9" }}>{p.num}</span>
-                <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "#7F6D8B" }}>{p.label}</span>
-              </div>
-
               <div>
                 <h3
                   className="text-xl md:text-2xl leading-snug mb-4"
