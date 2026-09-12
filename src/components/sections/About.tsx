@@ -21,15 +21,28 @@ export default function About() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reveals = sectionRef.current?.querySelectorAll(".about-reveal");
+
+      if (reducedMotion) {
+        gsap.set([photoRef.current, reveals], { opacity: 1, x: 0, y: 0, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0%)" });
+        return;
+      }
+
       gsap.fromTo(
         photoRef.current,
-        { opacity: 0, x: -40 },
-        { opacity: 1, x: 0, duration: 1.1, ease: "power3.out", scrollTrigger: { trigger: sectionRef.current, start: "top 65%" } }
+        { opacity: 0, clipPath: "inset(0% 0% 100% 0%)" },
+        { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.25, ease: "power4.inOut", scrollTrigger: { trigger: sectionRef.current, start: "top 72%" } }
       );
       gsap.fromTo(
-        contentRef.current,
-        { opacity: 0, x: 40 },
-        { opacity: 1, x: 0, duration: 1.1, ease: "power3.out", delay: 0.15, scrollTrigger: { trigger: sectionRef.current, start: "top 65%" } }
+        photoRef.current?.querySelector(".about-photo-image") ?? null,
+        { scale: 1.1 },
+        { scale: 1, duration: 1.5, ease: "power3.out", scrollTrigger: { trigger: sectionRef.current, start: "top 72%" } }
+      );
+      gsap.fromTo(
+        reveals ?? [],
+        { opacity: 0, y: 20, filter: "blur(7px)" },
+        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.85, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: contentRef.current, start: "top 76%" } }
       );
     }, sectionRef);
 
@@ -40,77 +53,62 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="bg-[var(--warm-white)] py-24 md:py-36"
+      className="about-section"
     >
-      <div className="max-w-7xl mx-auto px-8 md:px-14">
+      <div className="about-panel">
+        {/* Portrait */}
+        <div ref={photoRef} className="about-photo opacity-0">
+          <Image
+            src="/images/therapist.png"
+            alt="Tiffany — Ground Work Therapy"
+            fill
+            sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) 50vw, 700px"
+            className="about-photo-image"
+          />
+        </div>
 
-        {/* Eyebrow */}
-        <p className="text-lg uppercase tracking-[0.25em] text-[var(--teal-light)] mb-12" style={{ fontFamily: "var(--font-playfair)" }}>
-          About
-        </p>
+        {/* Biography */}
+        <div ref={contentRef} className="about-copy">
+          <h2 className="about-reveal about-name opacity-0">
+            Tiffany Venegas
+          </h2>
 
-        <div className="grid md:grid-cols-[2fr_3fr] gap-12 md:gap-20 items-start">
+          <p className="about-reveal about-role opacity-0">
+            LCSW (she/her)
+          </p>
 
-          {/* Photo column */}
-          <div ref={photoRef} className="opacity-0">
-            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-[var(--cream)]">
-              <Image
-                src="/images/therapist.png"
-                alt="Tiffany — Ground Work Therapy"
-                fill
-                className="object-cover object-top"
-                priority
-              />
-            </div>
+          <p className="about-reveal about-intro opacity-0">
+            A highly relational approach—showing up as a real person in the room.
+          </p>
+
+          <div className="about-bio">
+            <p className="about-reveal opacity-0">
+              Hi, I&apos;m Tiffany! I use humor to keep things human and grounded, while bringing the structure and
+              directness needed to create real change. I won&apos;t let you stay stuck.
+            </p>
+            <p className="about-reveal opacity-0">
+              I earned my B.S. in Psychology from the University of San Francisco before completing
+              my MSW at UCLA with an emphasis in health and mental health across the lifespan.
+              My clinical training spanned school aged children at West End Family Counseling,
+              the CalWORKs program at Harbor UCLA, and high acuity work at Didi Hirsch in Glendale.
+            </p>
+            <p className="about-reveal opacity-0">
+              I&apos;m now building my private practice working with both teens and adults, bringing
+              the same curiosity, warmth, and directness to every session.
+            </p>
           </div>
 
-          {/* Content column */}
-          <div ref={contentRef} className="opacity-0 flex flex-col justify-center h-full">
-
-            {/* Pull quote */}
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-10 text-[var(--text-dark)]"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              A highly relational approach.{" "}
-              <span className="italic" style={{ color: "var(--teal-mid)" }}>
-                Showing up as a real person in the room.
-              </span>
-            </h2>
-
-            {/* Bio */}
-            <div className="space-y-5 text-[var(--text-mid)] leading-relaxed text-base md:text-lg mb-12">
-              <p>
-                I use humor to keep things human and grounded, while bringing the structure and
-                directness needed to create real change. I won&apos;t let you stay stuck.
-              </p>
-              <p>
-                I earned my B.S. in Psychology from the University of San Francisco before completing
-                my MSW at UCLA with an emphasis in health and mental health across the lifespan.
-                My clinical training spanned school aged children at West End Family Counseling,
-                the CalWORKs program at Harbor UCLA, and high acuity work at Didi Hirsch in Glendale.
-              </p>
-              <p>
-                I&apos;m now building my private practice working with both teens and adults, bringing
-                the same curiosity, warmth, and directness to every session.
-              </p>
+          {/* Credentials */}
+          <div className="about-reveal about-background opacity-0">
+            <p className="about-background-title">Background</p>
+            <div className="about-credentials">
+              {CREDENTIALS.map((credential) => (
+                <div key={credential.tag} className="about-credential">
+                  <p>{credential.tag}</p>
+                  <span>{credential.detail}</span>
+                </div>
+              ))}
             </div>
-
-            {/* Credentials */}
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-light)] mb-5">
-                Background
-              </p>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
-                {CREDENTIALS.map((c) => (
-                  <div key={c.tag} className="border-l-2 border-[var(--teal-light)] pl-4">
-                    <p className="text-sm font-semibold text-[var(--text-dark)]">{c.tag}</p>
-                    <p className="text-xs text-[var(--text-light)] mt-0.5">{c.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
           </div>
         </div>
       </div>

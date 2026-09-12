@@ -1,111 +1,150 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useId, useState } from "react";
+import Image from "next/image";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 const PILLARS = [
   {
-    num: "01",
-    label: "",
+    id: "resilience",
     name: "Resilience over Perfection",
     description:
       "Realizing that a sink of dirty dishes or a \"messy\" day isn't a moral failure.",
+    imageSrc: "/images/starts-to-click/resilience-over-perfection.png",
+    imageAlt:
+      "Illustration of a person balancing a range of emotions with resilience",
   },
   {
-    num: "02",
-    label: "",
+    id: "presence",
     name: "Presence over Pressure",
     description:
       "Moving from the \"frozen\" state of survival mode to actually owning your day.",
+    imageSrc: "/images/starts-to-click/presence-over-pressure.png",
+    imageAlt:
+      "Illustration of a person breathing deeply and returning to the present moment",
   },
   {
-    num: "03",
-    label: "",
+    id: "connection",
     name: "Deeper Connections",
     description:
       "Having the emotional bandwidth to be curious about the people you love, rather than just reacting to them.",
+    imageSrc: "/images/starts-to-click/deeper-connections.png",
+    imageAlt: "Illustration of two people building connection together",
   },
-];
+] as const;
+
+type PillarId = (typeof PILLARS)[number]["id"];
+
+const ACCORDION_EASE = [0.22, 1, 0.36, 1] as const;
+const IMAGE_EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function Approach() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
-  const quoteRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
+  const [expandedId, setExpandedId] = useState<PillarId | null>(PILLARS[0].id);
+  const [imageId, setImageId] = useState<PillarId>(PILLARS[0].id);
+  const sectionId = useId();
+  const reduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        headingRef.current,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: headingRef.current, start: "top 78%" } }
-      );
-      gsap.fromTo(
-        quoteRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: quoteRef.current, start: "top 80%" } }
-      );
-      const cards = cardsRef.current?.querySelectorAll(".pillar-card");
-      if (cards) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: "power3.out", scrollTrigger: { trigger: cardsRef.current, start: "top 78%" } }
-        );
-      }
-    }, sectionRef);
-    return () => ctx.revert();
-  }, []);
+  const togglePillar = (pillarId: PillarId) => {
+    setImageId(pillarId);
+    setExpandedId((currentId) => (currentId === pillarId ? null : pillarId));
+  };
 
   return (
-    <section id="approach" ref={sectionRef} className="py-24 md:py-36 px-8 md:px-14" style={{ background: "#D3DADA" }}>
-      <div className="max-w-5xl mx-auto">
+    <section id="approach" className="approach-click-section">
+      <div className="approach-click-glow" aria-hidden="true" />
 
-        {/* Header */}
-        <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <h2
-            className="text-4xl md:text-5xl lg:text-6xl leading-[1.05]"
-            style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
-          >
-            When the work
-            <br />
-            <span className="italic" style={{ color: "#7F6D8B" }}>starts to click.</span>
-          </h2>
-        </div>
+      <div className="approach-click-layout">
+        <div className="approach-click-copy">
+          <h2 className="approach-click-heading">When the work starts to click.</h2>
 
-        {/* Pull quote */}
-        <div ref={quoteRef} className="opacity-0 mb-16 md:mb-24 border-l-4 pl-8 py-2" style={{ borderColor: "#BAA7B9" }}>
-          <p className="text-xl md:text-2xl leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}>
-            The goal isn&apos;t just understanding your patterns. It&apos;s changing how you relate to them so they stop running your life.
-          </p>
-        </div>
+          <div className="approach-click-accordion">
+            {PILLARS.map((pillar) => {
+              const isExpanded = pillar.id === expandedId;
+              const panelId = `${sectionId}-${pillar.id}-panel`;
+              const triggerId = `${sectionId}-${pillar.id}-trigger`;
 
-        {/* Pillar cards */}
-        <div ref={cardsRef} className="grid md:grid-cols-3 gap-6 md:gap-8">
-          {PILLARS.map((p) => (
-            <div
-              key={p.num}
-              className="pillar-card opacity-0 flex flex-col gap-6 p-8 rounded-2xl"
-              style={{ background: "#F0EEF1", border: "1px solid #BAA7B9" }}
-            >
-              <div>
-                <h3
-                  className="text-xl md:text-2xl leading-snug mb-4"
-                  style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
+              return (
+                <motion.article
+                  key={pillar.id}
+                  layout
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.25,
+                    ease: ACCORDION_EASE,
+                  }}
+                  className={`approach-click-item ${isExpanded ? "is-active" : ""}`}
                 >
-                  {p.name}
-                </h3>
-                <p className="leading-relaxed text-sm" style={{ color: "#5A4D61" }}>
-                  {p.description}
-                </p>
-              </div>
-            </div>
-          ))}
+                  <h3>
+                    <button
+                      id={triggerId}
+                      type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={panelId}
+                      onClick={() => togglePillar(pillar.id)}
+                      className="approach-click-trigger"
+                    >
+                      <span className="approach-click-label">{pillar.name}</span>
+                      <span
+                        className={`approach-click-plus ${isExpanded ? "is-active" : ""}`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </h3>
+
+                  <AnimatePresence initial={false}>
+                    {isExpanded ? (
+                      <motion.div
+                        id={panelId}
+                        role="region"
+                        aria-labelledby={triggerId}
+                        initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          duration: reduceMotion ? 0 : 0.3,
+                          ease: ACCORDION_EASE,
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <p className="approach-click-description">{pillar.description}</p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
 
+        <div className="approach-click-media" aria-live="polite">
+          {PILLARS.map((pillar) => {
+            const isActive = pillar.id === imageId;
+
+            return (
+              <motion.div
+                key={pillar.id}
+                aria-hidden={!isActive}
+                initial={false}
+                animate={{
+                  opacity: isActive ? 1 : 0,
+                  scale: isActive ? 1 : 1.015,
+                }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.4,
+                  ease: IMAGE_EASE,
+                }}
+                className="pointer-events-none absolute inset-0"
+              >
+                <Image
+                  src={pillar.imageSrc}
+                  alt={isActive ? pillar.imageAlt : ""}
+                  fill
+                  sizes="(min-width: 900px) 620px, 100vw"
+                  className="object-cover"
+                />
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

@@ -12,13 +12,13 @@ import Footer from "@/components/ui/Footer";
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-clip">
       <NavBar />
       <Hero />
+      <Consultation />
       <About />
       <Approach />
       <Services />
-      <Consultation />
       <FAQ />
       <Contact />
       <Footer />

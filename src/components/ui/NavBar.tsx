@@ -1,163 +1,346 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { NAV_LINKS } from "@/lib/content";
-import { Menu, X } from "lucide-react";
-import { gsap } from "gsap";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { NAV_LINKS } from "@/lib/content";
+
+const MOBILE_NAV_ID = "mobile-site-navigation";
+const SCROLL_THRESHOLD = 80;
+const SCROLL_HYSTERESIS = 10;
+const NAV_TRANSITION = {
+  duration: 0.32,
+  ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
+};
+
+const LOGO_MARK = {
+  src: "/images/mark-ink.png",
+  width: 706,
+  height: 755,
+};
+
+const LOGO_WORD = {
+  src: "/images/word-ink.png",
+  width: 1301,
+  height: 247,
+};
+
+function DesktopLogo({ compact }: { compact: boolean }) {
+  return (
+    <Link href="/" aria-label="Ground Work Therapy home" className="desktop-nav-logo">
+      <span className="desktop-nav-mark-slot">
+        <Image
+          src={LOGO_MARK.src}
+          width={LOGO_MARK.width}
+          height={LOGO_MARK.height}
+          alt="Ground Work Therapy"
+          className="desktop-nav-mark"
+          priority
+        />
+      </span>
+      <span className="desktop-nav-word-slot" aria-hidden={compact}>
+        <Image
+          src={LOGO_WORD.src}
+          width={LOGO_WORD.width}
+          height={LOGO_WORD.height}
+          alt="Ground Work Therapy"
+          className="desktop-nav-word"
+          priority
+        />
+      </span>
+    </Link>
+  );
+}
+
+function MobileLogo({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link
+      href="/"
+      aria-label="Ground Work Therapy home"
+      onClick={onClick}
+      className="flex shrink-0 items-center gap-[10px]"
+    >
+      <Image
+        src={LOGO_MARK.src}
+        width={LOGO_MARK.width}
+        height={LOGO_MARK.height}
+        alt="Ground Work Therapy"
+        className="h-[34px] w-auto"
+        priority
+      />
+      <Image
+        src={LOGO_WORD.src}
+        width={LOGO_WORD.width}
+        height={LOGO_WORD.height}
+        alt="Ground Work Therapy"
+        className="h-[18px] w-auto"
+        priority
+      />
+    </Link>
+  );
+}
+
+function MenuBars({ open }: { open: boolean }) {
+  return (
+    <span className="relative flex h-[15px] w-[26px] flex-col justify-center gap-[6px]" aria-hidden="true">
+      <span
+        className={`nav-menu-bar block h-[1.5px] w-[26px] bg-[var(--nav-ink)] transition-transform duration-200 ease-out ${
+          open ? "translate-y-[3.75px] rotate-45" : ""
+        }`}
+      />
+      <span
+        className={`nav-menu-bar block h-[1.5px] w-[26px] bg-[var(--nav-ink)] transition-transform duration-200 ease-out ${
+          open ? "-translate-y-[3.75px] -rotate-45" : ""
+        }`}
+      />
+    </span>
+  );
+}
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [onHero, setOnHero] = useState(true);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const logoSrc = "/images/newlogo_newfont_header_tone.png";
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeHref, setActiveHref] = useState<string | null>(null);
+  const reduceMotion = useReducedMotion();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setOnHero(window.scrollY < 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    let frame = 0;
+
+    const updateDesktopNav = () => {
+      frame = 0;
+      const scrollY = window.scrollY;
+
+      setIsScrolled((current) =>
+        current
+          ? scrollY > SCROLL_THRESHOLD - SCROLL_HYSTERESIS
+          : scrollY > SCROLL_THRESHOLD,
+      );
+
+      const marker = 160;
+      let nextActive: string | null = null;
+
+      for (const link of NAV_LINKS) {
+        const section = document.querySelector<HTMLElement>(link.href);
+        if (!section) continue;
+
+        const bounds = section.getBoundingClientRect();
+        if (bounds.top <= marker && bounds.bottom > marker) {
+          nextActive = link.href;
+          break;
+        }
+      }
+
+      setActiveHref((current) => (current === nextActive ? current : nextActive));
+    };
+
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateDesktopNav);
+    };
+
+    updateDesktopNav();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
   }, []);
 
   useEffect(() => {
-    if (!logoRef.current) return;
-    gsap.fromTo(logoRef.current, { opacity: 0 }, { opacity: 1, duration: 1, ease: "power2.out", delay: 0.8 });
-  }, []);
+    if (!menuOpen) return;
 
-  // Lock body scroll when menu is open
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const toggleButton = toggleRef.current;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusCloseButton = window.requestAnimationFrame(() => {
+      overlayRef.current?.querySelector<HTMLButtonElement>("[data-nav-close]")?.focus();
+    });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !overlayRef.current) return;
+
+      const focusable = Array.from(
+        overlayRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const closeAtDesktop = () => {
+      if (window.innerWidth >= 1024) setMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", closeAtDesktop, { passive: true });
+
+    return () => {
+      window.cancelAnimationFrame(focusCloseButton);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", closeAtDesktop);
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      toggleButton?.focus();
+    };
   }, [menuOpen]);
 
-  const handleNav = (href: string) => {
+  const navigateFromMenu = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    event.preventDefault();
     setMenuOpen(false);
-    setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }), 300);
+    window.setTimeout(() => {
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", href);
+    }, 0);
   };
 
-  // Hero is now light lavender — nav always uses dark text
-  const tc = "text-[var(--text-mid)] hover:text-[var(--teal-deep)]";
-  const cc = "border-[var(--teal-deep)] text-[var(--teal-deep)] hover:bg-[var(--teal-deep)] hover:text-white";
+  const layoutTransition = reduceMotion ? { duration: 0 } : NAV_TRANSITION;
 
   return (
     <>
-      {/* Main navbar */}
       <motion.nav
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-        className={`fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300 ${
-          !onHero && !menuOpen
-            ? "bg-[var(--warm-white)]/90 backdrop-blur-md border-b border-[var(--cream-dark)]/60"
-            : "bg-transparent"
+        layout
+        transition={layoutTransition}
+        data-scrolled={isScrolled}
+        aria-label="Primary navigation"
+        className={`desktop-nav-positioner hidden font-[family-name:var(--font-nunito)] font-medium lg:flex ${
+          isScrolled ? "is-scrolled" : ""
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-14 flex items-center justify-between">
+        <motion.div layout className="desktop-nav-island" transition={layoutTransition}>
+          <motion.div layout="position" className="desktop-nav-logo-piece" transition={layoutTransition}>
+            <DesktopLogo compact={isScrolled} />
+          </motion.div>
 
-          {/* Logo */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex-shrink-0"
-          >
-            <div ref={logoRef} className="opacity-0 transition-all duration-300">
-              <Image
-                src={logoSrc}
-                alt="Ground Work Therapy"
-                width={2048}
-                height={2048}
-                className="h-36 w-auto md:h-48"
-                priority
-              />
-            </div>
-          </button>
+          <motion.div layout="position" className="desktop-nav-links" transition={layoutTransition}>
+            {NAV_LINKS.map((link) => {
+              const active = isScrolled && activeHref === link.href;
 
-          {/* Desktop nav */}
-          <ul className="hidden md:flex items-center gap-10">
-            {NAV_LINKS.map((link, i) => (
-              <motion.li key={link.href} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.07, duration: 0.5 }}>
-                <button onClick={() => handleNav(link.href)} className={`text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${tc}`}>
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "location" : undefined}
+                  className={`desktop-nav-link ${active ? "is-active" : ""}`}
+                >
                   {link.label}
-                </button>
-              </motion.li>
-            ))}
-            <motion.li initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.5 }}>
-              <button
-                onClick={() => handleNav("#contact")}
-                className={`text-xs font-semibold uppercase tracking-[0.15em] px-6 py-2.5 rounded-full border transition-all duration-300 ${cc}`}
-              >
-                Connect
-              </button>
-            </motion.li>
-          </ul>
+                </a>
+              );
+            })}
+          </motion.div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden transition-colors duration-300 text-[var(--teal-deep)]"
-            onClick={() => setMenuOpen(true)}
+          <motion.a
+            layout="position"
+            transition={layoutTransition}
+            href="#contact"
+            className="desktop-nav-cta"
           >
-            <Menu size={24} />
-          </button>
-        </div>
+            Connect
+          </motion.a>
+        </motion.div>
       </motion.nav>
 
-      {/* Full-screen mobile menu */}
+      <header className="apple-glass-mobile relative z-50 flex items-center justify-between border-b border-[var(--nav-rule)] px-[22px] py-[18px] font-[family-name:var(--font-nunito)] font-medium lg:hidden">
+        <MobileLogo />
+        <button
+          ref={toggleRef}
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded={menuOpen}
+          aria-controls={MOBILE_NAV_ID}
+          onClick={() => setMenuOpen(true)}
+          className="nav-focus-ring flex h-11 w-11 items-center justify-center rounded-full py-[9px]"
+        >
+          <MenuBars open={false} />
+        </button>
+      </header>
+
       <AnimatePresence>
-        {menuOpen && (
+        {menuOpen ? (
           <motion.div
-            key="mobile-menu"
+            ref={overlayRef}
+            id={MOBILE_NAV_ID}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] flex flex-col md:hidden"
-            style={{ background: "#F0E0F4" }}
+            transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
+            className="apple-glass-overlay fixed inset-0 z-[100] flex min-h-[100dvh] flex-col font-[family-name:var(--font-nunito)] font-medium lg:hidden"
           >
-            {/* Close button */}
-            <div className="flex justify-end px-6 pt-6">
-              <button onClick={() => setMenuOpen(false)} style={{ color: "#3E3842" }} className="hover:opacity-60 transition-opacity">
-                <X size={28} />
+            <div className="flex items-center justify-between px-[22px] py-[18px]">
+              <MobileLogo onClick={() => setMenuOpen(false)} />
+              <button
+                data-nav-close
+                type="button"
+                aria-label="Close navigation"
+                aria-expanded="true"
+                aria-controls={MOBILE_NAV_ID}
+                onClick={() => setMenuOpen(false)}
+                className="nav-focus-ring flex h-11 w-11 items-center justify-center rounded-full py-[9px]"
+              >
+                <MenuBars open />
               </button>
             </div>
 
-            {/* Logo */}
-            <div className="flex justify-center mt-4 mb-10">
-              <Image
-                src={logoSrc}
-                alt="Ground Work Therapy"
-                width={2048}
-                height={2048}
-                className="h-40 w-auto"
-              />
-            </div>
-
-            {/* Nav links */}
-            <div className="flex flex-col items-center gap-2 px-8">
-              {NAV_LINKS.map((link, i) => (
-                <motion.button
+            <nav aria-label="Mobile navigation" className="flex flex-1 flex-col justify-center gap-[6px] px-[26px]">
+              {NAV_LINKS.map((link, index) => (
+                <motion.a
                   key={link.href}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i, duration: 0.3 }}
-                  onClick={() => handleNav(link.href)}
-                  className="w-full text-center py-5 text-sm font-semibold uppercase tracking-[0.2em] transition-colors"
-                  style={{ color: "#5A4D61", borderBottom: "1px solid #BAA7B9" }}
+                  href={link.href}
+                  onClick={(event) => navigateFromMenu(event, link.href)}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.2,
+                    delay: reduceMotion ? 0 : index * 0.03,
+                    ease: "easeOut",
+                  }}
+                  className="nav-focus-ring min-h-11 py-[12px] font-[family-name:var(--font-nunito)] text-[42px] font-medium leading-none text-[var(--nav-ink)]"
                 >
                   {link.label}
-                </motion.button>
+                </motion.a>
               ))}
-            </div>
+            </nav>
 
-            <div className="flex justify-center mt-10 px-8">
-              <button
-                onClick={() => handleNav("#contact")}
-                className="w-full py-4 rounded-full text-xs font-semibold tracking-widest uppercase transition-all duration-300"
-                style={{ border: "1px solid #7F6D8B", color: "#3E3842" }}
+            <div className="flex flex-col gap-[16px] px-[26px] pb-[44px]">
+              <a
+                href="#contact"
+                onClick={(event) => navigateFromMenu(event, "#contact")}
+                className="nav-focus-ring min-h-11 w-full rounded-[999px] bg-[var(--nav-plum)] p-[18px] text-center text-[15px] uppercase leading-none tracking-[0.06em] text-[var(--nav-plum-text)] shadow-[0_10px_28px_rgba(43,24,10,0.20)]"
               >
                 Connect
-              </button>
+              </a>
+              <p className="text-center text-[13px] leading-none text-[var(--nav-ink-faint)]">
+                Free 20-minute consultation
+              </p>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

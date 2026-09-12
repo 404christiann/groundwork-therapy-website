@@ -1,6 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
+import {
+  AudioWaveform,
+  Compass,
+  Drama,
+  Handshake,
+  Plus,
+  RotateCcw,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -11,56 +23,88 @@ const IDEAL_TRAITS = [
     num: "01",
     heading: "Always \"on\"",
     body: "Overthinking, overanalyzing, and struggling to quiet the mental noise.",
+    icon: AudioWaveform,
   },
   {
     num: "02",
     heading: "High functioning outside",
     body: "You look fine to everyone else, but internally you feel exhausted or stuck.",
+    icon: Drama,
   },
   {
     num: "03",
     heading: "Navigating something hard",
     body: "Anxiety, ADHD, trauma, grief, or a major life transition you can't outrun.",
+    icon: Compass,
   },
   {
     num: "04",
     heading: "Self aware but still stuck",
     body: "You understand your patterns. Insight alone just hasn't been enough to change them.",
+    icon: RotateCcw,
   },
   {
     num: "05",
     heading: "Ready for accountability",
     body: "You want a real working relationship, not someone who just nods along.",
+    icon: Handshake,
   },
   {
     num: "06",
     heading: "Want actual tools",
     body: "You're looking for direction and structure, not just a space to vent.",
+    icon: Wrench,
   },
-];
+] as const;
+
+const ACCORDION_EASE = [0.22, 1, 0.36, 1] as const;
+
+const GALLERY_IMAGES = [
+  { src: "/images/ideal-client-gallery/floral-portrait-v2.png", alt: "Woman holding a colorful bouquet" },
+  { src: "/images/ideal-client-gallery/mind-garden.png", alt: "Woman watering flowers in a head-shaped planter" },
+] as const;
+
+function TraitIcon({ active, icon: Icon }: { active: boolean; icon: LucideIcon }) {
+  return (
+    <span className={`trait-accordion-icon ${active ? "is-active" : ""}`} aria-hidden="true">
+      <Icon size={23} strokeWidth={1.7} />
+    </span>
+  );
+}
 
 export default function Consultation() {
+  const [activeIndex, setActiveIndex] = useState<number | null>(0);
+  const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const accordionRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+
+  const toggleTrait = (index: number) => {
+    if (activeIndex === index) {
+      setActiveIndex(null);
+      return;
+    }
+
+    setActiveIndex(index);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        headingRef.current,
-        { opacity: 0, y: 50 },
-        { opacity: 1, y: 0, duration: 1.1, ease: "power3.out", scrollTrigger: { trigger: sectionRef.current, start: "top 65%" } }
-      );
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      const cards = gridRef.current?.querySelectorAll(".trait-card");
-      if (cards) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power3.out", scrollTrigger: { trigger: gridRef.current, start: "top 72%" } }
-        );
+      if (reducedMotion) {
+        gsap.set([accordionRef.current, ctaRef.current], {
+          opacity: 1,
+          y: 0,
+        });
+        return;
       }
+
+      gsap.fromTo(
+        accordionRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: accordionRef.current, start: "top 76%" } },
+      );
 
       gsap.fromTo(
         ctaRef.current,
@@ -75,65 +119,115 @@ export default function Consultation() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 md:py-36 px-8 md:px-14 relative overflow-hidden"
-      style={{ background: "#D3DADA" }}
+      className="relative overflow-hidden px-8 pb-24 pt-20 md:px-14 md:pb-14 md:pt-12"
+      style={{ background: "var(--ivory)" }}
     >
       {/* Subtle background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(186,167,185,0.12) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(153,88,42,0.08) 0%, transparent 70%)" }}
       />
 
-      <div className="max-w-5xl mx-auto relative z-10">
-
-        {/* Header — centered */}
-        <div ref={headingRef} className="opacity-0 text-center mb-16 md:mb-20">
-          <p className="text-lg uppercase tracking-[0.25em] mb-6" style={{ color: "#7F6D8B", fontFamily: "var(--font-playfair)" }}>
-            Is this you?
-          </p>
-          <h2
-            className="text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-8"
-            style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
-          >
-            You might be my
-            <br />
-            <span className="italic" style={{ color: "#7F6D8B" }}>ideal client.</span>
-          </h2>
-          <p className="text-sm md:text-base leading-relaxed max-w-xl mx-auto" style={{ color: "rgba(62,56,66,0.65)" }}>
-            My clients are high functioning on the outside but feel internally exhausted or frustrated by patterns they can&apos;t seem to shift on their own. They want real change.
-          </p>
-        </div>
-
-        {/* Trait cards grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16 md:mb-20">
-          {IDEAL_TRAITS.map((trait) => (
-            <div
-              key={trait.num}
-              className="trait-card opacity-0 rounded-2xl p-8 flex flex-col gap-6"
-              style={{ background: "#F0EEF1", border: "1px solid #BAA7B9" }}
-            >
-              <h3
-                className="text-xl md:text-2xl leading-snug"
-                style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
+      <div className="mx-auto max-w-[1240px] relative z-10">
+        <div ref={accordionRef} className="ideal-client-layout mb-16 opacity-0 md:mb-10">
+          <div className="ideal-client-copy">
+            <div className="ideal-client-heading">
+              <h2
+                className="text-4xl leading-[1.05] md:text-5xl lg:text-6xl"
+                style={{ fontFamily: "var(--font-playfair)", color: "var(--charcoal)" }}
               >
-                {trait.heading}
-              </h3>
-              <p className="leading-relaxed text-sm" style={{ color: "#5A4D61" }}>
-                {trait.body}
-              </p>
+                Is this <span style={{ color: "var(--sienna)" }}>you?</span>
+              </h2>
             </div>
-          ))}
+
+            {/* Ideal-client trait accordion */}
+            <div className="trait-accordion-shell">
+              <div className="trait-accordion-list">
+                {IDEAL_TRAITS.map((trait, index) => {
+                  const active = activeIndex === index;
+                  const triggerId = `ideal-trait-trigger-${trait.num}`;
+                  const panelId = `ideal-trait-panel-${trait.num}`;
+
+                  return (
+                    <motion.div
+                      key={trait.num}
+                      layout
+                      transition={{ duration: reduceMotion ? 0 : 0.25, ease: ACCORDION_EASE }}
+                      className={`trait-accordion-item ${active ? "is-active" : ""}`}
+                    >
+                      <h3>
+                        <button
+                          id={triggerId}
+                          type="button"
+                          aria-expanded={active}
+                          aria-controls={panelId}
+                          onClick={() => toggleTrait(index)}
+                          className="trait-accordion-trigger"
+                        >
+                          <TraitIcon active={active} icon={trait.icon} />
+                          <span className="trait-accordion-label">{trait.heading}</span>
+                          <span className={`trait-accordion-plus ${active ? "is-active" : ""}`} aria-hidden="true">
+                            <Plus size={23} strokeWidth={1.8} />
+                          </span>
+                        </button>
+                      </h3>
+
+                      <AnimatePresence initial={false}>
+                        {active ? (
+                          <motion.div
+                            id={panelId}
+                            role="region"
+                            aria-labelledby={triggerId}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: reduceMotion ? 0 : 0.3, ease: ACCORDION_EASE }}
+                            className="overflow-hidden"
+                          >
+                            <p className="trait-accordion-copy">{trait.body}</p>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="ideal-client-gallery" aria-label="Two overlapping portraits">
+            {GALLERY_IMAGES.map((image) => (
+              <figure key={image.src} className="ideal-client-stamp">
+                <div className="ideal-client-stamp-photo">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes="(max-width: 767px) 42vw, (max-width: 1279px) 27vw, 320px"
+                    className="ideal-client-stamp-image"
+                  />
+                </div>
+                <Image
+                  src="/images/ideal-client-gallery/stamp-frame.png"
+                  alt=""
+                  fill
+                  sizes="(max-width: 767px) 42vw, (max-width: 1279px) 27vw, 320px"
+                  className="ideal-client-stamp-frame"
+                />
+              </figure>
+            ))}
+          </div>
         </div>
 
         {/* CTA */}
         <div ref={ctaRef} className="opacity-0 flex flex-col items-center gap-5 text-center">
-          <p className="text-xl md:text-2xl" style={{ color: "rgba(62,56,66,0.65)", fontFamily: "var(--font-playfair)" }}>
+          <p className="text-xl md:text-2xl" style={{ color: "var(--muted)", fontFamily: "var(--font-playfair)" }}>
             If this sounds like you, I&apos;d love to connect.
           </p>
           <button
             onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
             className="px-10 py-4 rounded-full text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: "#3E3842", color: "#F0E0F4" }}
+            style={{ background: "var(--sienna)", color: "var(--ivory)" }}
           >
             Schedule Free Consult
           </button>
