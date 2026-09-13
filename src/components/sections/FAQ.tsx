@@ -151,14 +151,14 @@ export default function FAQ() {
     <section
       id="faq"
       ref={sectionRef}
-      className="py-24 md:py-36 px-8 md:px-14"
+      className="relative py-24 md:py-36 px-8 md:px-14"
       style={{ background: "var(--ivory)" }}
     >
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}
         <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--sienna)" }}>
+          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--accent-ink)" }}>
             Common Questions
           </p>
           <h2
@@ -168,7 +168,7 @@ export default function FAQ() {
             <span className="faq-word inline-block opacity-0 mr-[0.16em]">Everything</span>
             <span className="faq-word inline-block opacity-0">you</span>
             <br />
-            <span className="italic" style={{ color: "var(--sienna)" }}>
+            <span className="italic accent-highlight">
               <span className="faq-word inline-block opacity-0 mr-[0.16em]">want</span>
               <span className="faq-word inline-block opacity-0 mr-[0.16em]">to</span>
               <span className="faq-word inline-block opacity-0">know.</span>
@@ -200,7 +200,7 @@ export default function FAQ() {
             <button
               onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
               className="px-8 py-3.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: "var(--sienna)", color: "var(--ivory)" }}
+              style={{ background: "var(--accent)", color: "var(--white)" }}
             >
               Reach Out
             </button>

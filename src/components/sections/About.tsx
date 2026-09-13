@@ -8,8 +8,8 @@ import Image from "next/image";
 gsap.registerPlugin(ScrollTrigger);
 
 const CREDENTIALS = [
-  { tag: "University of San Francisco", detail: "B.S. Psychology" },
-  { tag: "University of California, Los Angeles", detail: "Master of Social Work" },
+  { tag: "University of San Francisco", detail: "B.A. Psychology" },
+  { tag: "University of California, Los Angeles", detail: "Master of Social Welfare" },
   { tag: "Harbor UCLA Medical Center", detail: "CalWORKs Program" },
   { tag: "Didi Hirsch Mental Health Services", detail: "High Acuity Clinical Work" },
 ];
@@ -59,9 +59,10 @@ export default function About() {
         {/* Portrait */}
         <div ref={photoRef} className="about-photo opacity-0">
           <Image
-            src="/images/therapist.png"
+            src="/images/groundWorkTherapyAbout.jpg"
             alt="Tiffany — Ground Work Therapy"
             fill
+            unoptimized
             sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) 50vw, 700px"
             className="about-photo-image"
           />

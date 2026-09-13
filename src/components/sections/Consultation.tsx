@@ -136,7 +136,7 @@ export default function Consultation() {
                 className="text-4xl leading-[1.05] md:text-5xl lg:text-6xl"
                 style={{ fontFamily: "var(--font-playfair)", color: "var(--charcoal)" }}
               >
-                Is this <span style={{ color: "var(--sienna)" }}>you?</span>
+                Is this <span className="accent-highlight">you?</span>
               </h2>
             </div>
 
@@ -227,7 +227,7 @@ export default function Consultation() {
           <button
             onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
             className="px-10 py-4 rounded-full text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: "var(--sienna)", color: "var(--ivory)" }}
+            style={{ background: "var(--accent)", color: "var(--white)" }}
           >
             Schedule Free Consult
           </button>

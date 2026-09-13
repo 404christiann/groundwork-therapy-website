@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import Image from "next/image";
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -51,27 +52,47 @@ export default function Hero() {
   return (
     <section
       ref={containerRef}
-      className="hero-section relative flex min-h-[calc(100svh-71px)] flex-col px-[22px] pb-[64px] pt-[72px] lg:min-h-screen lg:px-[48px] lg:pb-[88px] lg:pt-[158px]"
+      className="hero-section"
+      aria-labelledby="hero-heading"
     >
-      <div className="my-auto">
+      <div className="hero-portrait">
+        <Image
+          src="/images/groundWorkTherapyHome.jpg"
+          alt="Tiffany Venegas smiling and holding her glasses"
+          fill
+          unoptimized
+          sizes="(min-width: 1024px) 59vw, 100vw"
+          loading="eager"
+          fetchPriority="high"
+          className="hero-portrait-image"
+        />
+      </div>
+
+      <div className="hero-copy">
         <h1
+          id="hero-heading"
           ref={headingRef}
-          className="max-w-[640px] text-[48px] font-bold leading-[1.08] text-[var(--text-dark)] sm:text-[56px] lg:text-[64px]"
-          style={{ lineHeight: 1.08 }}
+          className="hero-heading"
         >
-          <span className="hero-word block opacity-0">Where insight</span>
-          <span className="hero-word block pt-[10px] italic text-[var(--teal-mid)] opacity-0">
-            becomes change.
-          </span>
+          <span className="hero-word">Where insight</span>{" "}
+          <em>
+            <span className="hero-word">becomes change.</span>
+          </em>
         </h1>
 
         <p
           ref={descriptionRef}
-          className="mt-[28px] max-w-[520px] text-[18px] leading-[1.55] text-[var(--text-mid)] opacity-0"
+          className="hero-description"
         >
           I&apos;m a licensed therapist working with teens and adults in California. Grounded in ACT, CBT &amp; DBT.
         </p>
+
+        <a className="hero-connect" href="#contact">
+          Let’s connect
+        </a>
       </div>
+
+      <p className="hero-caption">Tiffany Venegas, LCSW</p>
     </section>
   );
 }

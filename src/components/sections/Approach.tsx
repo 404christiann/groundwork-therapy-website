@@ -1,12 +1,13 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 const PILLARS = [
   {
     id: "resilience",
+    tabLabel: "Resilience",
     name: "Resilience over Perfection",
     description:
       "Realizing that a sink of dirty dishes or a \"messy\" day isn't a moral failure.",
@@ -16,6 +17,7 @@ const PILLARS = [
   },
   {
     id: "presence",
+    tabLabel: "Presence",
     name: "Presence over Pressure",
     description:
       "Moving from the \"frozen\" state of survival mode to actually owning your day.",
@@ -25,6 +27,7 @@ const PILLARS = [
   },
   {
     id: "connection",
+    tabLabel: "Connection",
     name: "Deeper Connections",
     description:
       "Having the emotional bandwidth to be curious about the people you love, rather than just reacting to them.",
@@ -43,10 +46,41 @@ export default function Approach() {
   const [imageId, setImageId] = useState<PillarId>(PILLARS[0].id);
   const sectionId = useId();
   const reduceMotion = useReducedMotion();
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const togglePillar = (pillarId: PillarId) => {
     setImageId(pillarId);
     setExpandedId((currentId) => (currentId === pillarId ? null : pillarId));
+  };
+
+  const selectGalleryPillar = (pillarId: PillarId) => {
+    setImageId(pillarId);
+    setExpandedId(pillarId);
+  };
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number;
+
+    switch (event.key) {
+      case "ArrowRight":
+        nextIndex = (index + 1) % PILLARS.length;
+        break;
+      case "ArrowLeft":
+        nextIndex = (index + PILLARS.length - 1) % PILLARS.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = PILLARS.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    selectGalleryPillar(PILLARS[nextIndex].id);
+    tabRefs.current[nextIndex]?.focus({ preventScroll: true });
   };
 
   return (
@@ -145,6 +179,62 @@ export default function Approach() {
             );
           })}
         </div>
+      </div>
+
+      <div className="approach-gallery">
+        <h2 id={`${sectionId}-gallery-heading`} className="approach-gallery-heading">
+          <span>When the work</span>{" "}<span>starts to click.</span>
+        </h2>
+
+        <div
+          role="tablist"
+          aria-labelledby={`${sectionId}-gallery-heading`}
+          className="approach-gallery-tabs"
+        >
+          {PILLARS.map((pillar, index) => (
+            <button
+              key={pillar.id}
+              ref={(element) => { tabRefs.current[index] = element; }}
+              type="button"
+              role="tab"
+              id={`${sectionId}-${pillar.id}-gallery-tab`}
+              aria-label={pillar.name}
+              aria-selected={imageId === pillar.id}
+              aria-controls={`${sectionId}-${pillar.id}-gallery-panel`}
+              tabIndex={imageId === pillar.id ? 0 : -1}
+              onClick={() => selectGalleryPillar(pillar.id)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
+              className="approach-gallery-tab"
+            >
+              {pillar.tabLabel}
+            </button>
+          ))}
+        </div>
+
+        {PILLARS.map((pillar) => (
+          <div
+            key={pillar.id}
+            id={`${sectionId}-${pillar.id}-gallery-panel`}
+            role="tabpanel"
+            aria-labelledby={`${sectionId}-${pillar.id}-gallery-tab`}
+            hidden={imageId !== pillar.id}
+            tabIndex={0}
+            className="approach-gallery-panel"
+          >
+            <Image
+              src={pillar.imageSrc}
+              alt={pillar.imageAlt}
+              width={1086}
+              height={1448}
+              sizes="198px"
+              className="approach-gallery-image"
+            />
+            <div className="approach-gallery-copy">
+              <h3>{pillar.name}</h3>
+              <p>{pillar.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

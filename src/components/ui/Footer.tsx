@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import BrandWordmark from "@/components/ui/BrandWordmark";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -27,7 +28,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer ref={footerRef} style={{ background: "var(--espresso)" }}>
+    <footer ref={footerRef} style={{ background: "#E2725B", color: "#FFFFFF" }}>
 
       {/* Main footer body */}
       <div className="max-w-7xl mx-auto px-8 md:px-14 pt-16 pb-10">
@@ -35,47 +36,52 @@ export default function Footer() {
 
           {/* Col 1 — Logo + tagline */}
           <div className="footer-reveal opacity-0 flex flex-col gap-5">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="self-start">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="footer-brand"
+              aria-label="Ground Work Therapy — back to top"
+            >
               <Image
-                src="/images/newlogo_newfont_white_solid.png"
-                alt="Ground Work Therapy"
-                width={2048}
-                height={2048}
-                className="h-28 w-auto opacity-90"
+                src="/images/mark-ink.png"
+                alt=""
+                width={706}
+                height={755}
+                className="footer-brand-mark"
               />
+              <BrandWordmark className="footer-brand-wordmark" />
             </button>
-            <p className="text-sm leading-relaxed max-w-[220px]" style={{ color: "rgba(254,249,239,0.66)" }}>
+            <p className="text-sm leading-relaxed max-w-[220px]" style={{ color: "#FFFFFF" }}>
               Evidence-based therapy for high-functioning adults and teens in California.
             </p>
           </div>
 
           {/* Col 2 — Credentials */}
           <div className="footer-reveal opacity-0 flex flex-col gap-4">
-            <p className="text-xs uppercase tracking-[0.25em] mb-0 font-semibold" style={{ color: "rgba(254,249,239,0.66)" }}>
+            <p className="text-xs uppercase tracking-[0.25em] mb-0 font-semibold" style={{ color: "#FFFFFF" }}>
               License
             </p>
             <div
               className="rounded-xl px-5 py-4 inline-flex flex-col gap-1"
-              style={{ background: "rgba(254,249,239,0.06)", border: "1px solid var(--line-light)" }}
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.25)" }}
             >
-              <p className="text-base font-semibold" style={{ fontFamily: "var(--font-playfair)", color: "var(--ivory)" }}>
+              <p className="text-base font-semibold" style={{ fontFamily: "var(--font-playfair)", color: "#FFFFFF" }}>
                 Tiffany Venegas
               </p>
-              <p className="text-xs leading-relaxed" style={{ color: "rgba(254,249,239,0.74)" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
                 Licensed Clinical Social Worker
               </p>
-              <p className="text-xs font-semibold tracking-[0.1em] mt-1" style={{ color: "var(--ivory)" }}>
+              <p className="text-xs font-semibold tracking-[0.1em] mt-1" style={{ color: "#FFFFFF" }}>
                 LCSW #130210
               </p>
             </div>
-            <p className="text-xs leading-relaxed" style={{ color: "rgba(254,249,239,0.66)" }}>
+            <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
               Providing telehealth services throughout California.
             </p>
           </div>
 
           {/* Col 3 — Nav */}
           <div className="footer-reveal opacity-0 flex flex-col gap-1">
-            <p className="text-xs uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: "rgba(254,249,239,0.66)" }}>
+            <p className="text-xs uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: "#FFFFFF" }}>
               Navigate
             </p>
             {["About", "Approach", "Services"].map(label => (
@@ -83,7 +89,7 @@ export default function Footer() {
                 key={label}
                 onClick={() => document.querySelector(`#${label.toLowerCase()}`)?.scrollIntoView({ behavior: "smooth" })}
                 className="text-sm font-medium text-left py-1.5 transition-all duration-200 hover:translate-x-1"
-                style={{ color: "rgba(254,249,239,0.74)" }}
+                style={{ color: "#FFFFFF" }}
               >
                 {label}
               </button>
@@ -91,7 +97,7 @@ export default function Footer() {
             <button
               onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
               className="text-sm font-medium text-left py-1.5 transition-all duration-200 hover:translate-x-1"
-              style={{ color: "rgba(254,249,239,0.74)" }}
+              style={{ color: "#FFFFFF" }}
             >
               Connect
             </button>
@@ -101,9 +107,9 @@ export default function Footer() {
       </div>
 
       {/* Crisis line */}
-      <div style={{ borderTop: "1px solid var(--line-light)" }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)" }}>
         <div className="footer-reveal opacity-0 max-w-7xl mx-auto px-8 md:px-14 py-4 text-center">
-          <p className="text-xs leading-relaxed" style={{ color: "rgba(254,249,239,0.66)" }}>
+          <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
             If you are experiencing a mental health crisis, please call{" "}
             <a href="tel:988" className="underline underline-offset-2 hover:opacity-80 transition-opacity">988</a>{" "}
             or go to your nearest emergency room.
@@ -112,12 +118,12 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div style={{ borderTop: "1px solid var(--line-light)" }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)" }}>
         <div className="footer-reveal opacity-0 max-w-7xl mx-auto px-8 md:px-14 py-5 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-xs" style={{ color: "rgba(254,249,239,0.66)" }}>
+          <p className="text-xs" style={{ color: "#FFFFFF" }}>
             © {new Date().getFullYear()} Ground Work Therapy. All rights reserved.
           </p>
-          <p className="text-xs text-center md:text-right max-w-sm" style={{ color: "rgba(254,249,239,0.66)" }}>
+          <p className="text-xs text-center md:text-right max-w-sm" style={{ color: "#FFFFFF" }}>
             This site is for informational purposes only and does not constitute a therapeutic relationship.
           </p>
         </div>

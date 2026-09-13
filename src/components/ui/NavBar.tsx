@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import BrandWordmark from "@/components/ui/BrandWordmark";
 import { NAV_LINKS } from "@/lib/content";
 
 const MOBILE_NAV_ID = "mobile-site-navigation";
@@ -20,12 +21,6 @@ const LOGO_MARK = {
   height: 755,
 };
 
-const LOGO_WORD = {
-  src: "/images/word-ink.png",
-  width: 1301,
-  height: 247,
-};
-
 function DesktopLogo({ compact }: { compact: boolean }) {
   return (
     <Link href="/" aria-label="Ground Work Therapy home" className="desktop-nav-logo">
@@ -34,20 +29,13 @@ function DesktopLogo({ compact }: { compact: boolean }) {
           src={LOGO_MARK.src}
           width={LOGO_MARK.width}
           height={LOGO_MARK.height}
-          alt="Ground Work Therapy"
+          alt=""
           className="desktop-nav-mark"
           priority
         />
       </span>
       <span className="desktop-nav-word-slot" aria-hidden={compact}>
-        <Image
-          src={LOGO_WORD.src}
-          width={LOGO_WORD.width}
-          height={LOGO_WORD.height}
-          alt="Ground Work Therapy"
-          className="desktop-nav-word"
-          priority
-        />
+        <BrandWordmark className="desktop-nav-word" />
       </span>
     </Link>
   );
@@ -65,18 +53,11 @@ function MobileLogo({ onClick }: { onClick?: () => void }) {
         src={LOGO_MARK.src}
         width={LOGO_MARK.width}
         height={LOGO_MARK.height}
-        alt="Ground Work Therapy"
-        className="h-[34px] w-auto"
+        alt=""
+        className="h-[38px] w-auto"
         priority
       />
-      <Image
-        src={LOGO_WORD.src}
-        width={LOGO_WORD.width}
-        height={LOGO_WORD.height}
-        alt="Ground Work Therapy"
-        className="h-[18px] w-auto"
-        priority
-      />
+      <BrandWordmark className="mobile-brand-wordmark" />
     </Link>
   );
 }
@@ -105,6 +86,7 @@ export default function NavBar() {
   const reduceMotion = useReducedMotion();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const pendingHref = useRef<string | null>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -129,7 +111,6 @@ export default function NavBar() {
         const bounds = section.getBoundingClientRect();
         if (bounds.top <= marker && bounds.bottom > marker) {
           nextActive = link.href;
-          break;
         }
       }
 
@@ -204,17 +185,23 @@ export default function NavBar() {
       window.removeEventListener("resize", closeAtDesktop);
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
-      toggleButton?.focus();
+      toggleButton?.focus({ preventScroll: true });
+      const href = pendingHref.current;
+      if (href) {
+        pendingHref.current = null;
+        document.querySelector(href)?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+          block: "start",
+        });
+        window.history.replaceState(null, "", href);
+      }
     };
   }, [menuOpen]);
 
   const navigateFromMenu = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     event.preventDefault();
+    pendingHref.current = href;
     setMenuOpen(false);
-    window.setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
-      window.history.replaceState(null, "", href);
-    }, 0);
   };
 
   const layoutTransition = reduceMotion ? { duration: 0 } : NAV_TRANSITION;
@@ -263,7 +250,7 @@ export default function NavBar() {
         </motion.div>
       </motion.nav>
 
-      <header className="apple-glass-mobile relative z-50 flex items-center justify-between border-b border-[var(--nav-rule)] px-[22px] py-[18px] font-[family-name:var(--font-nunito)] font-medium lg:hidden">
+      <header className="apple-glass-mobile sticky top-0 z-50 flex items-center justify-between border-b border-[var(--nav-rule)] px-[22px] py-[18px] font-[family-name:var(--font-nunito)] font-medium lg:hidden">
         <MobileLogo />
         <button
           ref={toggleRef}
@@ -320,7 +307,7 @@ export default function NavBar() {
                     delay: reduceMotion ? 0 : index * 0.03,
                     ease: "easeOut",
                   }}
-                  className="nav-focus-ring min-h-11 py-[12px] font-[family-name:var(--font-nunito)] text-[42px] font-medium leading-none text-[var(--nav-ink)]"
+                  className="nav-focus-ring min-h-11 py-[12px] font-[family-name:var(--font-newsreader)] text-[42px] font-light leading-none text-[var(--nav-ink)]"
                 >
                   {link.label}
                 </motion.a>

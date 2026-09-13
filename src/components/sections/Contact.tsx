@@ -77,7 +77,7 @@ export default function Contact() {
 
         {/* Left */}
         <div ref={leftRef}>
-          <p className="contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--sienna)" }}>
+          <p className="contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--accent-ink)" }}>
             Get in Touch
           </p>
           <h2
@@ -88,7 +88,7 @@ export default function Contact() {
             <span className="contact-word inline-block opacity-0 mr-[0.16em]">to</span>
             <span className="contact-word inline-block opacity-0">explore</span>
             <br />
-            <span className="italic" style={{ color: "var(--sienna)" }}>
+            <span className="italic accent-highlight">
               <span className="contact-word inline-block opacity-0 mr-[0.16em]">what&apos;s</span>
               <span className="contact-word inline-block opacity-0">possible?</span>
             </span>
@@ -102,7 +102,7 @@ export default function Contact() {
               <div key={i} className="flex items-center gap-4">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(153,88,42,0.12)" }}>
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="var(--sienna)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="var(--accent-ink)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <span className="text-sm" style={{ color: "var(--muted)" }}>{d}</span>
@@ -135,7 +135,7 @@ export default function Contact() {
                     className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
                     style={{ background: "rgba(153,88,42,0.12)" }}
                   >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sienna)" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" strokeWidth="2">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </motion.div>
@@ -200,7 +200,7 @@ export default function Contact() {
                     type="submit"
                     disabled={formState === "sending"}
                     className="w-full py-4 rounded-full text-xs font-semibold tracking-widest uppercase transition-all duration-300 disabled:opacity-50 hover:-translate-y-0.5 hover:opacity-90"
-                    style={{ background: "var(--sienna)", color: "var(--ivory)" }}
+                    style={{ background: "var(--accent)", color: "var(--white)" }}
                   >
                     {formState === "sending" ? "Sending..." : "Send Message"}
                   </button>

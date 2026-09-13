@@ -81,22 +81,32 @@ export default function Services() {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".service-stack-card");
+    const media = gsap.matchMedia();
+    media.add({
+      compact: "(max-width: 767px)",
+      desktop: "(min-width: 768px)",
+      reducedMotion: "(prefers-reduced-motion: reduce)",
+      shortScreen: "(max-height: 599px)",
+    }, (context) => {
+      const section = sectionRef.current!;
+      const stage = section.querySelector<HTMLElement>(".service-stack-stage")!;
+      const cards = Array.from(section.querySelectorAll<HTMLElement>(".service-stack-card"));
       const heading = sectionRef.current?.querySelector<HTMLElement>(
         ".service-stack-heading",
       );
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const { compact: isCompact, reducedMotion, shortScreen } = context.conditions!;
 
-      if (reducedMotion) {
+      if (reducedMotion || shortScreen) {
+        section.dataset.stackFlow = "true";
         gsap.set(cards, { clearProps: "transform,opacity,visibility,filter" });
         if (heading) {
           gsap.set(heading, { clearProps: "transform,opacity,visibility" });
         }
-        return;
+        return () => {
+          delete section.dataset.stackFlow;
+        };
       }
 
-      const isCompact = window.matchMedia("(max-width: 767px)").matches;
       const scaleStep = isCompact ? 0.07 : 0.12;
       const maximumVisibleDepth = 3;
 
@@ -135,11 +145,17 @@ export default function Services() {
 
           if (relativePosition < 0) {
             const leaving = Math.min(1, Math.abs(relativePosition));
+            // Finished cards must stop painting, including after anchor jumps
+            // and refreshes where the stage may already be above the viewport.
+            if (leaving >= 1) {
+              gsap.set(card, { opacity: 0, visibility: "hidden" });
+              return;
+            }
             const completedScale = 1.12 + index * 0.008;
 
             gsap.set(card, {
               yPercent: 0,
-              y: -stageBottom * leaving,
+              y: -Math.max(0, stageBottom) * leaving,
               scale: 1 + (completedScale - 1) * leaving,
               rotateX: 15 * leaving,
               opacity: 1,
@@ -169,24 +185,89 @@ export default function Services() {
         });
       };
 
-      renderStack(0);
+      let trigger: ScrollTrigger | undefined;
+      let frame = 0;
+      let lastLayout = "";
+      const content = cards.map((card) =>
+        card.querySelector<HTMLElement>(".service-stack-content")!,
+      );
+      const verticalPadding = (element: HTMLElement) => {
+        const style = getComputedStyle(element);
+        return parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      };
 
-      ScrollTrigger.create({
-        trigger: trackRef.current,
-        start: isCompact ? "top top+=88" : "top top+=112",
-        end: "bottom bottom",
-        scrub: 0.35,
-        invalidateOnRefresh: true,
-        onRefresh: (self) => renderStack(self.progress),
-        onUpdate: (self) => renderStack(self.progress),
-      });
+      const updateLayout = () => {
+        frame = 0;
+        const wasFlow = section.dataset.stackFlow === "true";
+        // Measure the pinned layout before deciding whether its full contents
+        // fit. Restore the final mode synchronously, before the browser paints.
+        delete section.dataset.stackFlow;
+        const stageHeight = stage.clientHeight;
+        const requiredHeights = content.map((text, index) => {
+          const card = cards[index];
+          const copy = text.parentElement!;
+          const image = card.querySelector<HTMLElement>(".service-stack-image-wrap")!;
+          return text.offsetHeight + verticalPadding(copy) + verticalPadding(card)
+            + (isCompact ? parseFloat(getComputedStyle(image).minHeight) : 0);
+        });
+        const needsFlow = requiredHeights.some((height) => height > stageHeight);
+        if (needsFlow) section.dataset.stackFlow = "true";
+
+        const trackTop = Math.round(trackRef.current!.getBoundingClientRect().top + window.scrollY);
+        const layout = [
+          stage.clientWidth, stageHeight, window.innerHeight, trackTop,
+          ...requiredHeights, needsFlow,
+        ].join(":");
+        if (layout === lastLayout) return;
+        lastLayout = layout;
+
+        if (needsFlow) {
+          trigger?.kill();
+          trigger = undefined;
+          gsap.set(cards, { clearProps: "transform,opacity,visibility,filter" });
+          if (heading) gsap.set(heading, { clearProps: "transform,opacity,visibility" });
+        } else if (!trigger) {
+          trigger = ScrollTrigger.create({
+            trigger: trackRef.current,
+            start: isCompact ? "top top+=88" : "top top+=112",
+            end: "bottom bottom",
+            invalidateOnRefresh: true,
+            onRefresh: (self) => renderStack(self.progress),
+            onUpdate: (self) => renderStack(self.progress),
+          });
+          renderStack(trigger.progress);
+        } else {
+          trigger.refresh();
+        }
+        if (wasFlow !== needsFlow) ScrollTrigger.refresh();
+      };
+
+      const scheduleLayout = () => {
+        if (!frame) frame = window.requestAnimationFrame(updateLayout);
+      };
+      const observer = new ResizeObserver(scheduleLayout);
+      observer.observe(stage);
+      // Accordions and late-loading content above can move the track without
+      // changing the cards themselves. Keep its scroll boundaries current.
+      observer.observe(section.closest("main") ?? document.body);
+      content.forEach((text) => observer.observe(text));
+      window.addEventListener("resize", scheduleLayout, { passive: true });
+      updateLayout();
+
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("resize", scheduleLayout);
+        if (frame) window.cancelAnimationFrame(frame);
+        trigger?.kill();
+        delete section.dataset.stackFlow;
+      };
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => media.revert();
   }, []);
 
   return (
-    <section id="services" ref={sectionRef} className="services-stack-section bg-[#F7F7F7]">
+    <section id="services" ref={sectionRef} className="services-stack-section">
       <div ref={trackRef} className="service-stack-track px-4 md:px-8">
         <div className="service-stack-viewport">
           <div className="service-stack-heading mx-auto max-w-[1000px]">
@@ -207,12 +288,14 @@ export default function Services() {
                 aria-labelledby={`service-${service.id}-title`}
               >
                 <div className="service-stack-copy">
-                  <p className="service-stack-number">{service.num}</p>
-                  <p className="service-stack-label">{service.label}</p>
-                  <h3 id={`service-${service.id}-title`} className="service-stack-title">
-                    {service.name}
-                  </h3>
-                  <p className="service-stack-description">{service.description}</p>
+                  <div className="service-stack-content">
+                    <p className="service-stack-number">{service.num}</p>
+                    <p className="service-stack-label">{service.label}</p>
+                    <h3 id={`service-${service.id}-title`} className="service-stack-title">
+                      {service.name}
+                    </h3>
+                    <p className="service-stack-description">{service.description}</p>
+                  </div>
                 </div>
 
                 <div className="service-stack-image-wrap" aria-hidden="true">
