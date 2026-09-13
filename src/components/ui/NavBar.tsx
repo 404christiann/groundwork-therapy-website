@@ -250,7 +250,7 @@ export default function NavBar() {
         </motion.div>
       </motion.nav>
 
-      <header className="apple-glass-mobile sticky top-0 z-50 flex items-center justify-between border-b border-[var(--nav-rule)] px-[22px] py-[18px] font-[family-name:var(--font-nunito)] font-medium lg:hidden">
+      <header data-scrolled={isScrolled} className="apple-glass-mobile sticky top-0 z-50 flex items-center justify-between border-b border-[var(--nav-rule)] px-[22px] py-[18px] font-[family-name:var(--font-nunito)] font-medium lg:hidden">
         <MobileLogo />
         <button
           ref={toggleRef}
