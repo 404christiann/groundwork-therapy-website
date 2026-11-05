@@ -74,7 +74,7 @@ export default function Footer() {
       </p>
 
       <div className="footer-reveal footer-base opacity-0">
-        <p>© {new Date().getFullYear()} Ground Work Therapy. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Tiffany Venegas, LCSW. All rights reserved.</p>
         <p>This site is for informational purposes only and does not constitute a therapeutic relationship.</p>
       </div>
     </footer>
