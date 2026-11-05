@@ -1,4 +1,4 @@
-# Ground Work Therapy — Project Brief for Claude
+# Ground Work Therapy project brief for Claude
 
 ## What this is
 
@@ -8,7 +8,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 - **Remote:** `https://github.com/404christiann/groundwork-therapy-website.git`
 - **Checkout:** `~/Downloads/groundwork-therapy-website` (ignore the older sibling `groundwork-therapy-holistic` checkout)
 
-`HANDOFF.md` (local-only) is the detailed log of approved design decisions, verification history and release state. Read it before design or release work. `AGENTS.md`: this Next.js version has breaking changes, so read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code.
+`HANDOFF.md` (local-only) is the detailed log of approved design decisions, verification history and release state. Read it before design or release work. `AGENTS.md` warns that this Next.js version has breaking changes, so read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code.
 
 ---
 
@@ -20,7 +20,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 | Styling | Tailwind CSS v4, but most styling is named CSS classes in `src/app/globals.css` |
 | Animation | GSAP + ScrollTrigger (scroll reveals), Framer Motion (accordions, tabs, menu, form, Specialities copy swap) |
 | Icons | `lucide-react` (Consultation accordion) |
-| Backend | `src/app/api/contact/route.ts` sends the form by email via Resend's REST API (no SDK). Supabase code remains but is unused: no Supabase project or env vars exist for this site |
+| Backend | `src/app/api/contact/route.ts` sends the form by email via Resend's REST API (no SDK) |
 | Fonts | Newsreader 300 (display headings, wordmark), Nunito (body/UI), Jost (loaded in `layout.tsx` but `--font-jost` is currently unused), all via `next/font/google` |
 
 `page.tsx` is a client component that renders every section.
@@ -32,7 +32,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 - **Palette** (tokens in `globals.css`): cream page `--studio`/`--ivory` `#FEF7ED`, secondary panels `--sand` `#F5EBDD`, text `--charcoal` `#2A2B2F`, accent `--accent` Sunshine `#FFD43B`, small accent text `--accent-ink` `#785500`.
 - **Hero** uses its own photo gray `#DCD2D0`; the mobile header matches it until 80px of scroll, then turns cream.
 - **Footer** is Dusty Plum `--footer` `#45323D` with white text and white logo, in the approved "Quiet Center" layout: one centred column (tree mark + lockup, tagline, nav, one-line license, 988 crisis pill, legal). The user asked for moderate white space, not the roomier preview, so keep the spacing in the `.site-footer` block of `globals.css`.
-- **Filled buttons** (nav Connect, hero "Let’s connect" pill with arrow, mobile menu CTA, Consultation, FAQ, Contact submit, Specialities next arrow) are Dusty Plum `--button` `#6A4A5C` with cream `--button-ink` text, hovering to `--button-hover` `#553A49`. Plum also covers the About bio card (`--footer`) and the scrollbar thumb (`--button`). The page background stays cream.
+- **Filled buttons** (nav Connect, hero "Let's connect" pill with arrow, mobile menu CTA, Consultation, FAQ, Contact submit, Specialities next arrow) are Dusty Plum `--button` `#6A4A5C` with cream `--button-ink` text, hovering to `--button-hover` `#553A49`. Plum also covers the About bio card (`--footer`) and the scrollbar thumb (`--button`). The page background stays cream.
 - **Nav logos** (desktop, mobile header, open mobile menu) scroll back to the top of the landing page and clear any `#hash`. A plain `Link href="/"` is a no-op on this one-page site, so keep `handleLogoClick` / `scrollToLanding` in `NavBar.tsx`.
 - Legacy token names (`--teal-*`, `--cream`, `--warm-white`, `--gold`, `--font-playfair`) are aliases to the current palette and Newsreader. They are **not** instructions to restore the old teal/Playfair design.
 - **Brand:** the tree mark `/images/mark-ink.png` plus the name lockup in `src/components/ui/BrandWordmark.tsx`: "Tiffany Venegas" over a spaced "LCSW" with thin rules running to the name's edges. The favicon and `src/app/icon.png` use the tree mark.
@@ -53,15 +53,15 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 
 | # | Component | Anchor | Notes |
 |---|---|---|---|
-| — | `ui/NavBar.tsx` | — | Desktop floating "island" that compacts on scroll; mobile sticky header plus full-screen menu with focus trap, Escape and scroll lock |
-| 1 | `sections/Hero.tsx` | — | Portrait with gradient mask, GSAP word reveal, "Let's connect" → `#contact` |
-| 2 | `sections/Consultation.tsx` | — | "Is this you?" `IDEAL_TRAITS` accordion (lucide icons) plus image gallery |
+|  | `ui/NavBar.tsx` | none | Desktop floating "island" that compacts on scroll; mobile sticky header plus full-screen menu with focus trap, Escape and scroll lock |
+| 1 | `sections/Hero.tsx` | none | Portrait with gradient mask, GSAP word reveal, "Let's connect" links to `#contact` |
+| 2 | `sections/Consultation.tsx` | none | "Is this you?" `IDEAL_TRAITS` accordion (lucide icons) plus image gallery |
 | 3 | `sections/About.tsx` | `#about` | Photo, bio, `CREDENTIALS` array |
 | 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
 | 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
 | 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, Good Faith Estimate) |
-| 7 | `sections/Contact.tsx` | `#contact` | One-step form → `/api/contact` → email: "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
-| 8 | `ui/Footer.tsx` | — | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
+| 7 | `sections/Contact.tsx` | `#contact` | One-step form that posts to `/api/contact`, which emails Tiffany. "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
+| 8 | `ui/Footer.tsx` | none | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
 
 - `section[id]` has `scroll-margin-top: 96px`, and every nav destination should land about 96px below the top. Keep these IDs stable.
 - Nav labels come from `NAV_LINKS` in `src/lib/content.ts`; "Specialities" maps to `#services`.
@@ -72,13 +72,13 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 
 Most copy is hardcoded in the component that renders it:
 
-- `Consultation.tsx` → `IDEAL_TRAITS`, `GALLERY_IMAGES`
-- `About.tsx` → `CREDENTIALS` and bio JSX
-- `Approach.tsx` → `PILLARS`
-- `Services.tsx` → `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
-- `FAQ.tsx` → `FAQS`
-- `Contact.tsx` → `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu: plain-language line per option; list lives in `src/lib/content.ts` because the API route uses it too; `general` = "Not sure yet")
-- `src/lib/content.ts` → `NAV_LINKS` and `SPECIALITY_OPTIONS` (shared by the form and the API route).
+- `Consultation.tsx`: `IDEAL_TRAITS`, `GALLERY_IMAGES`
+- `About.tsx`: `CREDENTIALS` and bio JSX
+- `Approach.tsx`: `PILLARS`
+- `Services.tsx`: `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
+- `FAQ.tsx`: `FAQS`
+- `Contact.tsx`: `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu, with a plain-language line per option; the list lives in `src/lib/content.ts` because the API route uses it too, and `general` is "Not sure yet")
+- `src/lib/content.ts`: `NAV_LINKS` and `SPECIALITY_OPTIONS` (shared by the form and the API route).
 
 ---
 
@@ -91,7 +91,7 @@ Most copy is hardcoded in the component that renders it:
 - The card images set `draggable={false}`: a native image drag would cancel the swipe's pointer events.
 
 **Mobile menu (`NavBar.tsx`):**
-- A pending-destination ref, focus restoration to the toggle with `preventScroll`, and scroll unlock on close.
+- It uses a pending-destination ref, returns focus to the toggle with `preventScroll`, and unlocks scroll on close.
 - The active nav item tracks the *last* section containing the marker.
 
 **Contact form (`Contact.tsx` + `.contact-*` in `globals.css`):**
@@ -99,7 +99,7 @@ Most copy is hardcoded in the component that renders it:
 - The speciality field is a custom listbox (button + `role="listbox"`), keyboard-complete (arrows, Home/End, Enter, Escape returns focus) and closes on outside click.
 - Send has idle / sending / sent stacked in one place; on success the thank-you takes the card's box so the height doesn't jump. A failed submit shows "Something went wrong" and returns the button to idle.
 - Never submit the real form while verifying. Test `/api/contact` with `CONTACT_TO_EMAIL=delivered@resend.dev` (Resend's test inbox).
-- A hidden `website` field is a spam trap: if it's filled, the route returns success without sending.
+- A hidden spam-trap input (`hp_field`, sent to the route as `website`) catches bots: if it's filled, the route returns success without sending. Its name and label deliberately match no autofill type so browsers leave it empty.
 
 **Animation conventions:**
 - GSAP-revealed elements start with `opacity-0` and use `gsap.context()` cleanup.
@@ -112,7 +112,7 @@ Most copy is hardcoded in the component that renders it:
 - Resend account: Christian's. Domain `tiffanyvenegaslcsw.com` is verified there (DKIM `resend._domainkey`, `send` MX/TXT, `rsend` CNAME, all in Vercel DNS).
 - Vercel env vars (production + preview): `RESEND_API_KEY` (sensitive, send-only key restricted to this domain) and `CONTACT_TO_EMAIL` (Tiffany's inbox). Missing either makes the route return 500 and the form show "Something went wrong".
 - The route validates and trims fields itself, then sends a plain-text email: subject "New website message from {name}", reply-to the visitor.
-- No copy of messages is stored anywhere except Resend's sent log. The old Supabase pieces (`src/lib/supabase.ts`, `supabase/migrations/`) are unused.
+- No copy of messages is stored anywhere except Resend's sent log. The old Supabase client, migration and packages were removed.
 
 ## Running and verifying
 

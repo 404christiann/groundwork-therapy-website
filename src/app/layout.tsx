@@ -30,7 +30,7 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Ground Work Therapy",
   description:
-    "A collaborative, down-to-earth therapeutic space where insight turns into real, grounded change. Specializing in ACT, CBT, and DBT for anxiety, trauma, and life transitions.",
+    "Collaborative, down-to-earth therapy where insight turns into real, grounded change. Specializing in ACT, CBT, and DBT for anxiety, trauma, and life transitions.",
   keywords: ["therapy", "therapist", "mental health", "anxiety", "trauma", "CBT", "ACT", "DBT", "Los Angeles"],
   openGraph: {
     title: "Ground Work Therapy",

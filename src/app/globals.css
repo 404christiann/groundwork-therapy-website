@@ -137,7 +137,7 @@ h1, h2 {
   line-height: 1.55;
 }
 
-/* Hero call to action: the plum pill with an arrow that nudges forward */
+/* Hero call to action: the plum pill whose arrow moves 3px right on hover */
 .hero-connect {
   display: inline-flex;
   align-items: center;
@@ -816,7 +816,7 @@ h1, h2 {
 .about-photo-image {
   object-fit: cover;
   object-position: center bottom;
-  /* Keep the marked portrait area, removing the upper 200px of empty wall. */
+  /* Crop the upper 200px of empty wall and keep the marked portrait area. */
   height: 117.094% !important;
   top: auto !important;
 }
@@ -1625,7 +1625,7 @@ h1, h2 {
   padding: 16px 12px 8px;
 }
 
-/* Only the top card's label reads; the cards beneath are colour and edges */
+/* Only the top card shows its label; the cards beneath show only colour and edges */
 .deck-card:not([data-top]) .deck-band {
   opacity: 0;
 }
@@ -1799,8 +1799,8 @@ h1, h2 {
   }
 }
 
-/* Contact: one gentle step. A sand card with two quiet groups ("What would
-   you like support with?", then "How can I reach you?") and one Send. */
+/* Contact: one sand card with two groups ("What would you like support
+   with?", then "How can I reach you?") and one Send button. */
 .contact-card {
   padding: 32px 32px 26px;
   border-radius: 22px;
@@ -1902,8 +1902,8 @@ h1, h2 {
   box-shadow: 0 0 0 3px rgba(163, 65, 47, 0.16);
 }
 
-/* Each field owns a line for its message from the start, so an error never
-   shifts the form */
+/* Each field reserves a line for its error message from the start, so an
+   error never shifts the form */
 .contact-field-msg {
   min-height: 20px;
   padding-top: 5px;
@@ -1923,7 +1923,7 @@ h1, h2 {
   margin-bottom: 20px;
 }
 
-/* The speciality field: looks like the other fields, opens a menu under it */
+/* The speciality field looks like the other fields and opens a menu below it */
 .contact-select {
   position: relative;
   margin-bottom: 18px;
@@ -2050,8 +2050,8 @@ h1, h2 {
   opacity: 1;
 }
 
-/* Send: idle, sending and sent stacked in one place, so the button never
-   changes size */
+/* Send button: the idle, sending and sent states stack in one place, so the
+   button never changes size */
 .contact-foot {
   display: grid;
   gap: 10px;
@@ -2172,6 +2172,12 @@ h1, h2 {
   font-size: 30px;
   font-weight: 300;
   line-height: 1.1;
+}
+
+/* Contact.tsx focuses this heading after a send so keyboard users land here.
+   It is not a control, so it shows no outline. */
+.contact-thanks-title:focus {
+  outline: none;
 }
 
 .contact-thanks-copy {
