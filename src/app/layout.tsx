@@ -28,14 +28,24 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Ground Work Therapy",
+  metadataBase: new URL("https://www.tiffanyvenegaslcsw.com"),
+  title: "Tiffany Venegas, LCSW",
   description:
     "Collaborative, down-to-earth therapy where insight turns into real, grounded change. Specializing in ACT, CBT, and DBT for anxiety, trauma, and life transitions.",
   keywords: ["therapy", "therapist", "mental health", "anxiety", "trauma", "CBT", "ACT", "DBT", "Los Angeles"],
+  alternates: { canonical: "/" },
+  // The share image is src/app/opengraph-image.png (the tree mark)
   openGraph: {
-    title: "Ground Work Therapy",
+    title: "Tiffany Venegas, LCSW",
     description: "Where insight turns into real, grounded change.",
+    url: "/",
+    siteName: "Tiffany Venegas, LCSW",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tiffany Venegas, LCSW",
+    description: "Where insight turns into real, grounded change.",
   },
 };
 
