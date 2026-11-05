@@ -60,7 +60,7 @@ export default function About() {
         <div ref={photoRef} className="about-photo opacity-0">
           <Image
             src="/images/groundWorkTherapyAbout.jpg"
-            alt="Tiffany — Ground Work Therapy"
+            alt="Tiffany, Ground Work Therapy"
             fill
             unoptimized
             sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) 50vw, 700px"
@@ -79,7 +79,7 @@ export default function About() {
           </p>
 
           <p className="about-reveal about-intro opacity-0">
-            A highly relational approach—showing up as a real person in the room.
+            A highly relational approach, showing up as a real person in the room.
           </p>
 
           <div className="about-bio">

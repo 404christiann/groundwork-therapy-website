@@ -12,7 +12,7 @@ const SERVICES = [
     label: "ACT",
     name: "Acceptance & Commitment Therapy",
     description:
-      "Notice and step back from unhelpful thought loops so your values—not anxiety—can guide your choices. ACT is especially useful for perfectionism, worry, and feeling stuck despite being self-aware.",
+      "Notice and step back from unhelpful thought loops so your values, not anxiety, can guide your choices. ACT is especially useful for perfectionism, worry, and feeling stuck despite self-awareness.",
     color: "#9FBF2D",
     imageSrc: "/images/stack-services/service1.png",
     imagePosition: "center 30%",
@@ -78,8 +78,8 @@ const COUNT = SERVICES.length;
 const DEAL_MS = 380;
 const SWIPE_PX = 48;
 
-// Depth 0 is the top card. Small alternating angles and uneven offsets so the
-// pile reads as loose cards; anything deeper than 2 waits, hidden, behind it.
+// Depth 0 is the top card. Small alternating angles and uneven offsets make the
+// pile look like loose cards. Cards deeper than 2 stay hidden behind it.
 const POSES = [
   { x: 0, y: 0, r: -2 },
   { x: 18, y: -8, r: 4 },
@@ -143,8 +143,8 @@ export default function Services() {
       return;
     }
     busy.current = true;
-    // Place the returning card off to the left with no transition, then let it
-    // glide onto the top of the pile on the next frame.
+    // Place the returning card off to the left with no transition, then animate
+    // it onto the top of the pile on the next frame.
     setEntering(target);
     frame.current = window.requestAnimationFrame(() => {
       frame.current = window.requestAnimationFrame(() => {
@@ -194,9 +194,9 @@ export default function Services() {
           Specialities
         </h2>
 
-        {/* Every speciality in full, in the page's text: read by screen readers
-            and indexed by search engines, while the deck below shows one at a
-            time. Visually hidden, not display:none, so it stays in the page. */}
+        {/* Every speciality in full as page text, so screen readers and search
+            engines get all six while the deck below shows one at a time. It is
+            visually hidden rather than display:none, so screen readers still read it. */}
         <ul className="sr-only">
           {SERVICES.map((item) => (
             <li key={item.id}>
@@ -267,8 +267,8 @@ export default function Services() {
               <span>{service.num}</span>
               <span className="deck-count-of">/ {pad(COUNT)}</span>
             </p>
-            {/* The full text of all six lives in the list above; this visible
-                copy only mirrors the top card, so assistive tech skips it. */}
+            {/* The list above holds the full text of all six. This visible copy
+                only repeats the top card, so it is hidden from assistive tech. */}
             <p className="sr-only" aria-live="polite">
               Showing {service.label}, {Number(service.num)} of {COUNT}
             </p>

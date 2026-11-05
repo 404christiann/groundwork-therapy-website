@@ -16,3 +16,6 @@ export const SPECIALITY_OPTIONS = [
   { value: "dbt", name: "DBT", line: "Concrete skills for intense emotions" },
   { value: "general", name: "Not sure yet", line: "That’s okay. We can figure it out together." },
 ] as const;
+
+// Shared by the form and the API route so both accept the same addresses
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

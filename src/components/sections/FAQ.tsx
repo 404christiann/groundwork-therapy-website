@@ -10,19 +10,19 @@ gsap.registerPlugin(ScrollTrigger);
 const FAQS = [
   {
     q: "How much does a session cost?",
-    a: "Sessions are $160 for a 55 minute appointment. If cost feels like a barrier, reach out — I'm happy to have an honest conversation about it.",
+    a: "Sessions are $160 for a 55 minute appointment. If cost feels like a barrier, reach out. I'm happy to have an honest conversation about it.",
   },
   {
     q: "Do you accept insurance?",
-    a: "I'm out of network with all insurance providers, which means I don't bill insurance directly. However, I can provide a superbill — a detailed receipt you can submit to your insurance company for potential out of network reimbursement. Many clients get a portion of their sessions covered this way. I'd recommend calling your insurance ahead of time to ask about your out of network mental health benefits.",
+    a: "I'm out of network with all insurance providers, which means I don't bill insurance directly. However, I can provide a superbill, a detailed receipt you can submit to your insurance company for potential out of network reimbursement. Many clients get a portion of their sessions covered this way. I'd recommend calling your insurance ahead of time to ask about your out of network mental health benefits.",
   },
   {
     q: "How long are sessions and how often will we meet?",
-    a: "Sessions are 55 minutes. Most clients start with weekly appointments — that consistency is what creates momentum and allows the work to actually build over time.",
+    a: "Sessions are 55 minutes. Most clients start with weekly appointments. That consistency is what creates momentum and allows the work to actually build over time.",
   },
   {
     q: "Is therapy online only?",
-    a: "Yes, all sessions are conducted via telehealth. That means you can join from anywhere in California — your home, your car, your office. No commute, no waiting room. Just a private space and a reliable internet connection.",
+    a: "Yes, all sessions happen over telehealth. That means you can join from your home, your car, or your office, anywhere in California. No commute, no waiting room. Just a private space and a reliable internet connection.",
   },
   {
     q: "What is a Good Faith Estimate?",
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "How do I get started?",
-    a: "Start by scheduling a free 20 minute consultation. It's a low pressure conversation where we can connect and see if working together feels right — no commitment required.",
+    a: "Start by scheduling a free 20 minute consultation. It's a low pressure conversation where we can connect and see if working together feels right. No commitment required.",
   },
 ];
 

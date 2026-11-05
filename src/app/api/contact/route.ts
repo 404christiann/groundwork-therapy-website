@@ -1,9 +1,8 @@
-import { SPECIALITY_OPTIONS } from "@/lib/content";
+import { EMAIL_PATTERN, SPECIALITY_OPTIONS } from "@/lib/content";
 
 const FROM = "Tiffany Venegas LCSW Website <website@tiffanyvenegaslcsw.com>";
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Single-line fields collapse whitespace so nothing can break the subject line
+// Collapse whitespace in single-line fields so nothing can break the subject line
 const line = (value: unknown, max: number) =>
   typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "";
 
@@ -17,15 +16,18 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
+  if (typeof body !== "object" || body === null) {
+    return Response.json({ error: "Invalid request" }, { status: 400 });
+  }
 
-  // Bots fill the hidden "website" field; act as if it worked
+  // Bots fill the hidden "website" field, so return success without sending
   if (line(body.website, 200)) return Response.json({ ok: true });
 
   const name = line(body.name, 200);
   const email = line(body.email, 320);
   const phone = line(body.phone, 40);
   const message = block(body.message, 5000);
-  if (!name || !message || !EMAIL.test(email)) {
+  if (!name || !message || !EMAIL_PATTERN.test(email)) {
     return Response.json({ error: "Missing or invalid fields" }, { status: 400 });
   }
   const service = SPECIALITY_OPTIONS.find((option) => option.value === body.service)?.name ?? "Not chosen";
@@ -49,17 +51,24 @@ export async function POST(request: Request) {
     `Reply to this email to answer ${name} directly.`,
   ].join("\n");
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: FROM,
-      to: [to],
-      reply_to: email,
-      subject: `New website message from ${name}`,
-      text,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: FROM,
+        to: [to],
+        reply_to: email,
+        subject: `New website message from ${name}`,
+        text,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (error) {
+    console.error("Contact form: could not reach Resend", error);
+    return Response.json({ error: "Send failed" }, { status: 502 });
+  }
 
   if (!response.ok) {
     console.error("Contact form: Resend returned", response.status, await response.text());

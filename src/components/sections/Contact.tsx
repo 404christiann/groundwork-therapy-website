@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
-import { SPECIALITY_OPTIONS } from "@/lib/content";
+import { EMAIL_PATTERN, SPECIALITY_OPTIONS } from "@/lib/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,11 +26,10 @@ const MESSAGES: Record<Field, string> = {
   email: "Please add a valid email.",
 };
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const fieldError = (field: Field, values: Values) => {
   const value = values[field].trim();
   if (!value) return true;
-  return field === "email" ? !EMAIL.test(value) : false;
+  return field === "email" ? !EMAIL_PATTERN.test(value) : false;
 };
 
 function SpecialitySelect({
@@ -175,6 +174,7 @@ export default function Contact() {
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const trapRef = useRef<HTMLInputElement>(null);
+  const thanksRef = useRef<HTMLHeadingElement>(null);
   const sentTimer = useRef<number | undefined>(undefined);
   const id = useId();
 
@@ -203,11 +203,16 @@ export default function Contact() {
 
   useEffect(() => () => window.clearTimeout(sentTimer.current), []);
 
+  // The focused Send button hides with the form, so move focus to the thank-you heading
+  useEffect(() => {
+    if (thanks) thanksRef.current?.focus({ preventScroll: true });
+  }, [thanks]);
+
   const update = (key: keyof Values, value: string) => {
     const next = { ...values, [key]: value };
     setValues(next);
     if (sendState === "error") setSendState("idle");
-    // An error clears the moment the value is fixed
+    // An error clears as soon as the value is valid
     if (key in MESSAGES && invalid[key as Field] && !fieldError(key as Field, next)) {
       setInvalid((current) => ({ ...current, [key]: false }));
     }
@@ -236,7 +241,7 @@ export default function Contact() {
       });
       if (!response.ok) throw new Error(`Send failed: ${response.status}`);
       setSendState("sent");
-      // Let "Sent" register on the button, then the thank-you takes the card
+      // Show "Sent" on the button briefly, then swap the card to the thank-you
       sentTimer.current = window.setTimeout(() => {
         setThanks(true);
         setValues(EMPTY);
@@ -308,8 +313,8 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* Right: one gentle step. What you'd like support with comes first,
-            how to reach you second, all on one card with one Send. */}
+        {/* Right: the form. What you'd like support with comes first, then how
+            to reach you, all on one card with one Send button. */}
         <div ref={rightRef} className="opacity-0">
           <div className="contact-card">
             <div className="contact-swap" data-sent={thanks ? "" : undefined}>
@@ -331,6 +336,7 @@ export default function Contact() {
                       id={`${id}-message`}
                       name="message"
                       rows={4}
+                      maxLength={5000}
                       value={values.message}
                       onChange={(event) => update("message", event.target.value)}
                       placeholder="Share a bit about what you’re looking for…"
@@ -351,6 +357,7 @@ export default function Contact() {
                         id={`${id}-name`}
                         name="name"
                         autoComplete="name"
+                        maxLength={200}
                         value={values.name}
                         onChange={(event) => update("name", event.target.value)}
                         placeholder="Your full name"
@@ -367,6 +374,7 @@ export default function Contact() {
                         name="email"
                         type="email"
                         autoComplete="email"
+                        maxLength={320}
                         value={values.email}
                         onChange={(event) => update("email", event.target.value)}
                         placeholder="you@example.com"
@@ -384,6 +392,7 @@ export default function Contact() {
                         name="phone"
                         type="tel"
                         autoComplete="tel"
+                        maxLength={40}
                         value={values.phone}
                         onChange={(event) => update("phone", event.target.value)}
                         placeholder="(555) 000-0000"
@@ -393,10 +402,11 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Spam trap: hidden from people, filled in by bots */}
+                {/* Spam trap: hidden from people, filled in by bots. The name and
+                    label match no autofill type, so browsers leave it empty. */}
                 <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
-                  <label htmlFor={`${id}-website`}>Website</label>
-                  <input ref={trapRef} id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
+                  <label htmlFor={`${id}-hp`}>Leave this empty</label>
+                  <input ref={trapRef} id={`${id}-hp`} name="hp_field" type="text" tabIndex={-1} autoComplete="off" />
                 </div>
 
                 <div className="contact-foot">
@@ -433,7 +443,7 @@ export default function Contact() {
                     <span className="contact-thanks-tick" aria-hidden="true">
                       <Check size={24} strokeWidth={2.2} />
                     </span>
-                    <h3 className="contact-thanks-title">Message received</h3>
+                    <h3 ref={thanksRef} tabIndex={-1} className="contact-thanks-title">Message received</h3>
                     <p className="contact-thanks-copy">I&apos;ll be in touch within 1–2 business days.</p>
                   </>
                 ) : null}
