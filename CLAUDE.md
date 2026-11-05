@@ -2,9 +2,9 @@
 
 ## What this is
 
-Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a telehealth therapist for teens and adults in California. Next.js on Vercel, with a Supabase table for contact form submissions.
+Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a telehealth therapist for teens and adults in California. Next.js on Vercel. The contact form emails Tiffany through Resend.
 
-- **Production:** https://groundwork-therapy-website.vercel.app (pushes to `main` auto-deploy via Vercel)
+- **Production:** https://www.tiffanyvenegaslcsw.com (domain bought and DNS managed in Vercel, team `404christianns-projects`; the `groundwork-therapy-website.vercel.app` alias still works). Pushes to `main` auto-deploy via Vercel.
 - **Remote:** `https://github.com/404christiann/groundwork-therapy-website.git`
 - **Checkout:** `~/Downloads/groundwork-therapy-website` (ignore the older sibling `groundwork-therapy-holistic` checkout)
 
@@ -20,7 +20,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 | Styling | Tailwind CSS v4, but most styling is named CSS classes in `src/app/globals.css` |
 | Animation | GSAP + ScrollTrigger (scroll reveals), Framer Motion (accordions, tabs, menu, form, Specialities copy swap) |
 | Icons | `lucide-react` (Consultation accordion) |
-| Backend | Supabase (`contact_submissions` insert only) |
+| Backend | `src/app/api/contact/route.ts` sends the form by email via Resend's REST API (no SDK). Supabase code remains but is unused: no Supabase project or env vars exist for this site |
 | Fonts | Newsreader 300 (display headings, wordmark), Nunito (body/UI), Jost (loaded in `layout.tsx` but `--font-jost` is currently unused), all via `next/font/google` |
 
 `page.tsx` is a client component that renders every section.
@@ -60,7 +60,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 | 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
 | 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
 | 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, Good Faith Estimate) |
-| 7 | `sections/Contact.tsx` | `#contact` | One-step form → Supabase: "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
+| 7 | `sections/Contact.tsx` | `#contact` | One-step form → `/api/contact` → email: "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
 | 8 | `ui/Footer.tsx` | — | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
 
 - `section[id]` has `scroll-margin-top: 96px`, and every nav destination should land about 96px below the top. Keep these IDs stable.
@@ -77,8 +77,8 @@ Most copy is hardcoded in the component that renders it:
 - `Approach.tsx` → `PILLARS`
 - `Services.tsx` → `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
 - `FAQ.tsx` → `FAQS`
-- `Contact.tsx` → `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu: plain-language line per option; `value` is what the `service` column stores, `general` = "Not sure yet")
-- `src/lib/content.ts` → `NAV_LINKS` only (the legacy `SERVICES` list was removed when Contact got its own menu).
+- `Contact.tsx` → `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu: plain-language line per option; list lives in `src/lib/content.ts` because the API route uses it too; `general` = "Not sure yet")
+- `src/lib/content.ts` → `NAV_LINKS` and `SPECIALITY_OPTIONS` (shared by the form and the API route).
 
 ---
 
@@ -98,7 +98,8 @@ Most copy is hardcoded in the component that renders it:
 - Validation is in the component (`noValidate`): message, name and a valid email are required. Every field reserves a line for its error so nothing shifts, the first invalid field gets focus, and an error clears as soon as it's fixed.
 - The speciality field is a custom listbox (button + `role="listbox"`), keyboard-complete (arrows, Home/End, Enter, Escape returns focus) and closes on outside click.
 - Send has idle / sending / sent stacked in one place; on success the thank-you takes the card's box so the height doesn't jump. A failed submit shows "Something went wrong" and returns the button to idle.
-- Never submit the real form while verifying; locally there are no Supabase keys.
+- Never submit the real form while verifying. Test `/api/contact` with `CONTACT_TO_EMAIL=delivered@resend.dev` (Resend's test inbox).
+- A hidden `website` field is a spam trap: if it's filled, the route returns success without sending.
 
 **Animation conventions:**
 - GSAP-revealed elements start with `opacity-0` and use `gsap.context()` cleanup.
@@ -106,16 +107,12 @@ Most copy is hardcoded in the component that renders it:
 
 ---
 
-## Supabase
+## Contact email (Resend)
 
-- `src/lib/supabase.ts` creates the client from `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-- `Contact.tsx` imports it dynamically on submit.
-- The migration is `supabase/migrations/001_contact_submissions.sql`.
-- RLS: anyone can INSERT; any **authenticated** user can SELECT. That's only safe if public sign-ups are disabled on the Supabase project.
-- There's no `.env.local` in the checkout by default, so copy `.env.local.example` to run the form locally.
-- Never submit the real contact form during verification.
-
----
+- Resend account: Christian's. Domain `tiffanyvenegaslcsw.com` is verified there (DKIM `resend._domainkey`, `send` MX/TXT, `rsend` CNAME, all in Vercel DNS).
+- Vercel env vars (production + preview): `RESEND_API_KEY` (sensitive, send-only key restricted to this domain) and `CONTACT_TO_EMAIL` (Tiffany's inbox). Missing either makes the route return 500 and the form show "Something went wrong".
+- The route validates and trims fields itself, then sends a plain-text email: subject "New website message from {name}", reply-to the visitor.
+- No copy of messages is stored anywhere except Resend's sent log. The old Supabase pieces (`src/lib/supabase.ts`, `supabase/migrations/`) are unused.
 
 ## Running and verifying
 
@@ -154,4 +151,4 @@ npm run build   # includes TypeScript; may need network access for Google Fonts,
 ## Open content items
 
 - **Booking:** every CTA (Hero, NavBar, Consultation, FAQ, Footer) scrolls to `#contact`. If the therapist adopts a scheduler (SimplePractice, Jane, etc.), swap in its URL.
-- **Domain:** the only production URL on record is the `vercel.app` alias; connect a custom domain in Vercel when there is one.
+- **Email inbox:** the domain has no mailbox (no root MX records), so `@tiffanyvenegaslcsw.com` addresses can't receive mail. Form emails come from `website@tiffanyvenegaslcsw.com` with reply-to set to the visitor.

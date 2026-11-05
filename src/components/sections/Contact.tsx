@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
+import { SPECIALITY_OPTIONS } from "@/lib/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,18 +19,6 @@ const DETAILS = [
   "Online sessions available in California",
   "Response within 1–2 business days",
 ];
-
-// The speciality menu: plain-language concerns first, then the approaches,
-// then "Not sure yet". Values are what the Supabase `service` column stores.
-const SPECIALITY_OPTIONS = [
-  { value: "anxiety", name: "Anxiety & ADHD", line: "For a mind that’s always on" },
-  { value: "trauma", name: "Trauma", line: "Processing difficult experiences safely" },
-  { value: "life-transitions", name: "Life Transitions", line: "Support through a season of change" },
-  { value: "act", name: "ACT", line: "Let your values, not anxiety, guide you" },
-  { value: "cbt", name: "CBT", line: "Shift the thought patterns keeping you stuck" },
-  { value: "dbt", name: "DBT", line: "Concrete skills for intense emotions" },
-  { value: "general", name: "Not sure yet", line: "That’s okay. We can figure it out together." },
-] as const;
 
 const MESSAGES: Record<Field, string> = {
   message: "Share a sentence or two, whatever feels right.",
@@ -185,6 +174,7 @@ export default function Contact() {
   const messageRef = useRef<HTMLTextAreaElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
+  const trapRef = useRef<HTMLInputElement>(null);
   const sentTimer = useRef<number | undefined>(undefined);
   const id = useId();
 
@@ -239,8 +229,12 @@ export default function Contact() {
 
     setSendState("sending");
     try {
-      const { submitContactForm } = await import("@/lib/supabase");
-      await submitContactForm(values);
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, website: trapRef.current?.value ?? "" }),
+      });
+      if (!response.ok) throw new Error(`Send failed: ${response.status}`);
       setSendState("sent");
       // Let "Sent" register on the button, then the thank-you takes the card
       sentTimer.current = window.setTimeout(() => {
@@ -397,6 +391,12 @@ export default function Contact() {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Spam trap: hidden from people, filled in by bots */}
+                <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
+                  <label htmlFor={`${id}-website`}>Website</label>
+                  <input ref={trapRef} id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
                 </div>
 
                 <div className="contact-foot">
