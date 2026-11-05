@@ -21,9 +21,24 @@ const LOGO_MARK = {
   height: 755,
 };
 
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// The site is one page, so a Link to "/" from "/" or "/#faq" is a no-op.
+// Scroll back to the hero and drop the hash instead.
+function scrollToLanding() {
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "instant" : "smooth" });
+  window.history.replaceState(null, "", "/");
+}
+
+function handleLogoClick(event: React.MouseEvent<HTMLAnchorElement>) {
+  if (window.location.pathname !== "/") return;
+  event.preventDefault();
+  scrollToLanding();
+}
+
 function DesktopLogo({ compact }: { compact: boolean }) {
   return (
-    <Link href="/" aria-label="Ground Work Therapy home" className="desktop-nav-logo">
+    <Link href="/" aria-label="Tiffany Venegas, LCSW home" onClick={handleLogoClick} className="desktop-nav-logo">
       <span className="desktop-nav-mark-slot">
         <Image
           src={LOGO_MARK.src}
@@ -41,11 +56,11 @@ function DesktopLogo({ compact }: { compact: boolean }) {
   );
 }
 
-function MobileLogo({ onClick }: { onClick?: () => void }) {
+function MobileLogo({ onClick = handleLogoClick }: { onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void }) {
   return (
     <Link
       href="/"
-      aria-label="Ground Work Therapy home"
+      aria-label="Tiffany Venegas, LCSW home"
       onClick={onClick}
       className="flex shrink-0 items-center gap-[10px]"
     >
@@ -187,7 +202,10 @@ export default function NavBar() {
       document.documentElement.style.overflow = previousHtmlOverflow;
       toggleButton?.focus({ preventScroll: true });
       const href = pendingHref.current;
-      if (href) {
+      if (href === "/") {
+        pendingHref.current = null;
+        scrollToLanding();
+      } else if (href) {
         pendingHref.current = null;
         document.querySelector(href)?.scrollIntoView({
           behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
@@ -280,7 +298,7 @@ export default function NavBar() {
             className="apple-glass-overlay fixed inset-0 z-[100] flex min-h-[100dvh] flex-col font-[family-name:var(--font-nunito)] font-medium lg:hidden"
           >
             <div className="flex items-center justify-between px-[22px] py-[18px]">
-              <MobileLogo onClick={() => setMenuOpen(false)} />
+              <MobileLogo onClick={(event) => navigateFromMenu(event, "/")} />
               <button
                 data-nav-close
                 type="button"
@@ -307,7 +325,7 @@ export default function NavBar() {
                     delay: reduceMotion ? 0 : index * 0.03,
                     ease: "easeOut",
                   }}
-                  className="nav-focus-ring min-h-11 py-[12px] font-[family-name:var(--font-newsreader)] text-[42px] font-light leading-none text-[var(--nav-ink)]"
+                  className="nav-focus-ring min-h-11 py-[12px] font-[family-name:var(--font-newsreader)] text-[42px] font-light leading-none text-[var(--button)]"
                 >
                   {link.label}
                 </motion.a>

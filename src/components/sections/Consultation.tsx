@@ -125,7 +125,7 @@ export default function Consultation() {
       {/* Subtle background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(153,88,42,0.08) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(106,74,92,0.08) 0%, transparent 70%)" }}
       />
 
       <div className="mx-auto max-w-[1240px] relative z-10">
@@ -226,8 +226,7 @@ export default function Consultation() {
           </p>
           <button
             onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-10 py-4 rounded-full text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: "var(--accent)", color: "var(--white)" }}
+            className="px-10 py-4 rounded-full text-sm font-semibold uppercase tracking-widest transition-[background-color,translate,scale,opacity] duration-200 ease-out hover:-translate-y-0.5 bg-[var(--button)] text-[var(--button-ink)] hover:bg-[var(--button-hover)] active:scale-[0.97]"
           >
             Schedule Free Consult
           </button>

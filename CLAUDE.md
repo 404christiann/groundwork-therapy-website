@@ -2,10 +2,13 @@
 
 ## What this is
 
-A private practice website for a licensed therapist. The site is a single-page Next.js app deployed to Vercel with a Supabase backend for contact form submissions.
+Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a telehealth therapist for teens and adults in California. Next.js on Vercel, with a Supabase table for contact form submissions.
 
-**Live at:** `/` (single route, fully scroll-based navigation)
-**Repo location:** `~/Downloads/groundwork-therapy-website`
+- **Production:** https://groundwork-therapy-website.vercel.app (pushes to `main` auto-deploy via Vercel)
+- **Remote:** `https://github.com/404christiann/groundwork-therapy-website.git`
+- **Checkout:** `~/Downloads/groundwork-therapy-website` (ignore the older sibling `groundwork-therapy-holistic` checkout)
+
+`HANDOFF.md` (local-only) is the detailed log of approved design decisions, verification history and release state. Read it before design or release work. `AGENTS.md`: this Next.js version has breaking changes, so read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code.
 
 ---
 
@@ -13,174 +16,142 @@ A private practice website for a licensed therapist. The site is a single-page N
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router, TypeScript, Turbopack) |
-| Styling | Tailwind CSS v4 + CSS custom properties |
-| Animations | GSAP + ScrollTrigger (scroll-based), Framer Motion (interactive) |
-| Backend | Supabase (contact form submissions) |
-| Fonts | Playfair Display (headings/serif), Geist (body) — both via `next/font/google` |
-| Hosting | Vercel |
+| Framework | Next.js 16.2.5 (App Router, TypeScript, Turbopack), React 19 |
+| Styling | Tailwind CSS v4, but most styling is named CSS classes in `src/app/globals.css` |
+| Animation | GSAP + ScrollTrigger (scroll reveals), Framer Motion (accordions, tabs, menu, form, Specialities copy swap) |
+| Icons | `lucide-react` (Consultation accordion) |
+| Backend | Supabase (`contact_submissions` insert only) |
+| Fonts | Newsreader 300 (display headings, wordmark), Nunito (body/UI), Jost (loaded in `layout.tsx` but `--font-jost` is currently unused), all via `next/font/google` |
+
+`page.tsx` is a client component that renders every section.
 
 ---
 
-## Design language
+## Approved design (don't change without a request)
 
-The aesthetic is inspired by [jaytrang.com](https://www.jaytrang.com/) — dark, minimal, lots of whitespace, confident typography. Key rules:
-
-- **Dark sections** use `linear-gradient(135deg, #0d1f20 → #1a3035 → #142828 → #0a1818)` — this exact gradient is used in Hero, Consultation, and Footer. Don't change it.
-- **Light sections** alternate between `var(--warm-white)` (#FDFAF6) and `var(--cream)` (#F7F0E8).
-- **Headings** always use `fontFamily: "var(--font-playfair)"`. First line is regular weight, second line is italic and slightly muted (`text-white/70` on dark, `text-[var(--text-mid)]` on light).
-- **Section labels** (the small eyebrow text above every heading) are `text-xs uppercase tracking-[0.25em] text-[var(--teal-light)]`.
-- **Buttons** use rounded-full pill shape. Primary: `bg-[var(--teal-deep)] text-white`. Outline: `border border-[var(--teal-deep)] text-[var(--teal-deep)]`. On dark backgrounds the outline button uses `border-white/40 text-white hover:bg-white hover:text-[var(--teal-deep)]`.
-- **No drop shadows, no gradients on cards, no border-radius inconsistency.** Sections use `rounded-2xl` or `rounded-3xl` only where necessary.
-
-### Color tokens (defined in `src/app/globals.css`)
-
-```
---cream:        #F7F0E8
---cream-dark:   #EDE4D8
---teal-deep:    #1D4D4F
---teal-mid:     #2D6B6E
---teal-light:   #4A9B9E
---warm-white:   #FDFAF6
---text-dark:    #1A2E2E
---text-mid:     #3D5A5B
---text-light:   #6B8F8F
---gold:         #C4A96B
---gold-light:   #E8D5A3
-```
+- **Palette** (tokens in `globals.css`): cream page `--studio`/`--ivory` `#FEF7ED`, secondary panels `--sand` `#F5EBDD`, text `--charcoal` `#2A2B2F`, accent `--accent` Sunshine `#FFD43B`, small accent text `--accent-ink` `#785500`.
+- **Hero** uses its own photo gray `#DCD2D0`; the mobile header matches it until 80px of scroll, then turns cream.
+- **Footer** is Dusty Plum `--footer` `#45323D` with white text and white logo, in the approved "Quiet Center" layout: one centred column (tree mark + lockup, tagline, nav, one-line license, 988 crisis pill, legal). The user asked for moderate white space, not the roomier preview, so keep the spacing in the `.site-footer` block of `globals.css`.
+- **Filled buttons** (nav Connect, hero "Let’s connect" pill with arrow, mobile menu CTA, Consultation, FAQ, Contact submit, Specialities next arrow) are Dusty Plum `--button` `#6A4A5C` with cream `--button-ink` text, hovering to `--button-hover` `#553A49`. Plum also covers the About bio card (`--footer`) and the scrollbar thumb (`--button`). The page background stays cream.
+- **Nav logos** (desktop, mobile header, open mobile menu) scroll back to the top of the landing page and clear any `#hash`. A plain `Link href="/"` is a no-op on this one-page site, so keep `handleLogoClick` / `scrollToLanding` in `NavBar.tsx`.
+- Legacy token names (`--teal-*`, `--cream`, `--warm-white`, `--gold`, `--font-playfair`) are aliases to the current palette and Newsreader. They are **not** instructions to restore the old teal/Playfair design.
+- **Brand:** the tree mark `/images/mark-ink.png` plus the name lockup in `src/components/ui/BrandWordmark.tsx`: "Tiffany Venegas" over a spaced "LCSW" with thin rules running to the name's edges. The favicon and `src/app/icon.png` use the tree mark.
+  - LCSW is deliberately centred under the space between the two names, not the lockup's exact middle ("Venegas" is wider). The `--wm-shift` constant in `globals.css` (-0.183 × name size) was measured with the site's own fonts. Re-measure it if the name, font or tracking changes.
+  - Each context sets its own `--wm-name` / `--wm-cred` sizes (desktop 31/9px, mobile 23/7px, footer 29/8.5px). The desktop word slot is fixed at 193.3px wide for the scroll collapse.
+  - "Ground Work Therapy" still appears in the page title/Open Graph metadata, the About photo alt text and the footer copyright line.
+- **Hero heading:** `Where insight` / italic `becomes change.`, and the second line must stay on one line, including mobile.
+- **Every accent on the site is Dusty Plum** (site-wide audit, Nov 2026): buttons, eyebrows, counters, icons, plus signs, focus rings, glows, the highlighter and text selection. No `--accent` / `--accent-ink` (yellow, gold) remain in use; the legacy aliases `--teal-*`, `--gold` and `--text-light` now point at `--button`. Deliberately not plum: the six speciality card colours, the hero photo grey `#DCD2D0`, warm neutral shadows, and the red form-error text.
+- **Accordion accents are Dusty Plum `--button`** (Nov 2026, replacing the earlier neutral rule): the "Is this you?" icons (no background circle) and plus signs, the FAQ and Approach plus signs, and the FAQ trigger focus ring. The "Common Questions" and "Get in Touch" eyebrows are plum too, as are the Contact checkmarks (detail list and "Message received"). The mobile menu's four links are plum as well. The highlighter under "you?", "want to know." and "what's possible?" (`.accent-highlight`) is the plum tint `--highlight` `#E6BCD4`; plain low opacity of `--button` read grey. Text selection uses `--highlight` too. The Approach section ("When the work starts to click.") uses plum for its plus signs, focus rings, background glow and the selected mobile gallery tab. Specialities uses plum for its "01 / 06" counter, the filled next arrow and the arrow focus rings; the six card colours stay as they are.
+- **Specialities:** a loose deck of the six colored cards (chosen from four stageshow concepts, Nov 2026), dealt with arrow buttons, arrow keys or a swipe. Card images use `object-fit: cover` (the `contain` experiment was rejected). The filled arrow uses the plum `--button` tokens.
+- **Mobile Approach:** a tabbed gallery below 900px, with artwork intentionally `contain`.
+- **Photos:** don't recompress, regenerate or swap `public/images/groundWorkTherapyHome.jpg` (hero, `unoptimized`) or `groundWorkTherapyAbout.jpg`.
+- **Clinical content:** don't invent clinical claims, credentials, rates or licensing details.
 
 ---
 
-## File structure
+## Section order (`src/app/page.tsx`)
 
-```
-src/
-├── app/
-│   ├── globals.css          # CSS variables + scrollbar + base styles
-│   ├── layout.tsx           # Metadata, Playfair + Geist fonts
-│   └── page.tsx             # Assembles all sections in order
-├── components/
-│   ├── sections/
-│   │   ├── Hero.tsx         # Dark full-screen, GSAP stagger, "Where insight / becomes change."
-│   │   ├── About.tsx        # Two-column: pull quote left, bio + photo placeholder right
-│   │   ├── Approach.tsx     # Numbered list rows (01 ACT, 02 CBT, 03 DBT)
-│   │   ├── Services.tsx     # Pill card grid with Framer Motion layoutId expand animation
-│   │   ├── Consultation.tsx # Dark section, "Is This You?" numbered trait list
-│   │   └── Contact.tsx      # Two-column: heading left, form right (Supabase)
-│   └── ui/
-│       ├── NavBar.tsx       # Fixed, transparent-on-dark, adapts color on scroll
-│       └── Footer.tsx       # Dark, minimal three-column
-├── lib/
-│   ├── content.ts           # SERVICES array + NAV_LINKS — edit here to change copy
-│   └── supabase.ts          # Supabase client + submitContactForm()
-supabase/
-└── migrations/
-    └── 001_contact_submissions.sql
-```
+| # | Component | Anchor | Notes |
+|---|---|---|---|
+| — | `ui/NavBar.tsx` | — | Desktop floating "island" that compacts on scroll; mobile sticky header plus full-screen menu with focus trap, Escape and scroll lock |
+| 1 | `sections/Hero.tsx` | — | Portrait with gradient mask, GSAP word reveal, "Let's connect" → `#contact` |
+| 2 | `sections/Consultation.tsx` | — | "Is this you?" `IDEAL_TRAITS` accordion (lucide icons) plus image gallery |
+| 3 | `sections/About.tsx` | `#about` | Photo, bio, `CREDENTIALS` array |
+| 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
+| 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
+| 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, Good Faith Estimate) |
+| 7 | `sections/Contact.tsx` | `#contact` | One-step form → Supabase: "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
+| 8 | `ui/Footer.tsx` | — | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
+
+- `section[id]` has `scroll-margin-top: 96px`, and every nav destination should land about 96px below the top. Keep these IDs stable.
+- Nav labels come from `NAV_LINKS` in `src/lib/content.ts`; "Specialities" maps to `#services`.
 
 ---
 
-## Section order (top → bottom)
+## Where copy lives
 
-1. **NavBar** — fixed overlay, not part of scroll flow
-2. **Hero** — dark, full viewport
-3. **About** — light (warm-white)
-4. **Approach** — light (cream)
-5. **Services** — light (warm-white)
-6. **Consultation** — dark (same gradient as Hero)
-7. **Contact** — light (cream)
-8. **Footer** — dark (#0a1818)
+Most copy is hardcoded in the component that renders it:
 
----
-
-## Animation patterns
-
-### GSAP (scroll-triggered reveals)
-Every section uses `gsap.context()` with `ScrollTrigger`. The standard pattern:
-```ts
-gsap.fromTo(el, { opacity: 0, y: 40 }, {
-  opacity: 1, y: 0, duration: 1, ease: "power3.out",
-  scrollTrigger: { trigger: el, start: "top 75%" }
-})
-```
-Elements that are animated by GSAP **must start with `className="opacity-0"`** or GSAP will flash them visible before animating.
-
-### Framer Motion (interactive)
-- **Services cards** use `layoutId` for a shared-element expand animation. When a pill card is clicked, Framer Motion morphs it from its grid position to a centered overlay. This is in `Services.tsx` — don't replace it with a flip or modal, the layoutId morph is intentional.
-- **NavBar** entrance uses `motion.nav` with `initial={{ opacity: 0 }} animate={{ opacity: 1 }}`.
-- **Contact form** success state uses `AnimatePresence` + `motion.div`.
+- `Consultation.tsx` → `IDEAL_TRAITS`, `GALLERY_IMAGES`
+- `About.tsx` → `CREDENTIALS` and bio JSX
+- `Approach.tsx` → `PILLARS`
+- `Services.tsx` → `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
+- `FAQ.tsx` → `FAQS`
+- `Contact.tsx` → `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu: plain-language line per option; `value` is what the `service` column stores, `general` = "Not sure yet")
+- `src/lib/content.ts` → `NAV_LINKS` only (the legacy `SERVICES` list was removed when Contact got its own menu).
 
 ---
 
-## Content / copy
+## Fragile behavior (preserve)
 
-All editable content lives in **`src/lib/content.ts`**:
+**Specialities deck (`Services.tsx` + `.deck-*` in `globals.css`):**
+- The deck never pins or hijacks scroll. Next deals the top card away and it returns to the back, so the deck cycles; Previous slides the last card back on from the left (placed with no transition, then animated on the next frame).
+- A `busy` ref ignores presses while a card is in flight (380ms). Under reduced motion the cards change with no travel.
+- `.deck-text` / `.deck-desc` reserve room for the longest name and description so the arrow buttons never move between cards. Re-check that if copy gets longer.
+- The card images set `draggable={false}`: a native image drag would cancel the swipe's pointer events.
 
-```ts
-SERVICES = [
-  { id, title, subtitle, description, imageSrc, color }
-  // 5 entries: act, cbt, dbt, trauma, anxiety
-]
+**Mobile menu (`NavBar.tsx`):**
+- A pending-destination ref, focus restoration to the toggle with `preventScroll`, and scroll unlock on close.
+- The active nav item tracks the *last* section containing the marker.
 
-NAV_LINKS = [
-  { label, href }  // href = "#section-id"
-]
-```
+**Contact form (`Contact.tsx` + `.contact-*` in `globals.css`):**
+- Validation is in the component (`noValidate`): message, name and a valid email are required. Every field reserves a line for its error so nothing shifts, the first invalid field gets focus, and an error clears as soon as it's fixed.
+- The speciality field is a custom listbox (button + `role="listbox"`), keyboard-complete (arrows, Home/End, Enter, Escape returns focus) and closes on outside click.
+- Send has idle / sending / sent stacked in one place; on success the thank-you takes the card's box so the height doesn't jump. A failed submit shows "Something went wrong" and returns the button to idle.
+- Never submit the real form while verifying; locally there are no Supabase keys.
 
-Bio copy, credentials, and ideal client traits are hardcoded in their respective section components. To update:
-- Therapist bio → `About.tsx`
-- ACT/CBT/DBT descriptions → `Approach.tsx` (`PILLARS` array at top of file)
-- "Is This You?" list → `Consultation.tsx` (`IDEAL_TRAITS` array)
-
----
-
-## Supabase setup
-
-The contact form inserts into a `contact_submissions` table. To set this up on a new Supabase project:
-
-1. Run `supabase/migrations/001_contact_submissions.sql` in the SQL editor.
-2. Copy `.env.local.example` → `.env.local` and fill in:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   ```
-3. Add those same env vars to the Vercel project settings.
-
-The table has RLS enabled: anonymous users can only INSERT, authenticated users can SELECT. The therapist can read submissions by logging in via the Supabase dashboard.
+**Animation conventions:**
+- GSAP-revealed elements start with `opacity-0` and use `gsap.context()` cleanup.
+- Every animation has a `prefers-reduced-motion` branch.
 
 ---
 
-## What's not done yet (known TODOs)
+## Supabase
 
-- **Therapist photo** — placeholder exists in `About.tsx`. Drop the real photo at `public/images/therapist.jpg` and replace the placeholder div with `<Image src="/images/therapist.jpg" alt="..." fill className="object-cover" />`.
-- **Service card images** — the pill cards use solid teal color blocks. Real photos go in `public/images/{act,cbt,dbt,trauma,anxiety}.jpg`. In `Services.tsx`, add an `<Image>` with `fill` and `object-cover` inside the card and overlay the gradient on top.
-- **Booking link** — the "Book a Session" button in the Services overlay and "Schedule Free Consult" in Consultation scroll to `#contact`. If the therapist uses SimplePractice, Jane App, or another scheduler, replace those with the direct booking URL.
-- **Domain** — connect in Vercel project settings once purchased.
-- **Therapist's name** — not on the site yet. Add it to the About section once confirmed.
-- **License number** — California requires therapists to display their license number. Add it to the Footer once known.
+- `src/lib/supabase.ts` creates the client from `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- `Contact.tsx` imports it dynamically on submit.
+- The migration is `supabase/migrations/001_contact_submissions.sql`.
+- RLS: anyone can INSERT; any **authenticated** user can SELECT. That's only safe if public sign-ups are disabled on the Supabase project.
+- There's no `.env.local` in the checkout by default, so copy `.env.local.example` to run the form locally.
+- Never submit the real contact form during verification.
 
 ---
 
-## Running locally
+## Running and verifying
 
 ```bash
-cd ~/Downloads/groundwork-therapy-website
 npm install
-cp .env.local.example .env.local   # fill in Supabase keys
-npm run dev                          # http://localhost:3000
+npm run dev     # http://localhost:3000 (port 3000 has served stale CSS before)
+npm run lint
+npm run build   # includes TypeScript; may need network access for Google Fonts, so don't swap fonts to avoid it
 ```
 
-```bash
-npm run build   # production build check
-```
+- Past handoffs used a production preview: `npm run build && npm run start -- --hostname 127.0.0.1 --port 3105`. Check who owns a listener (`lsof -nP -iTCP:3105 -sTCP:LISTEN`) before killing it.
+- Typical browser matrix: 360×640, 390×844, 430×932, 768×1024, 844×390, 1440×900.
+  - Check for horizontal overflow, all nav destinations, menu Escape/focus/scroll cleanup, dealing the Specialities deck forward and back, and FAQ refresh.
 
 ---
 
-## Deploy to Vercel
+## Git and release rules
 
-```bash
-vercel                  # preview deploy
-vercel --prod           # production
-```
+- **Never commit, push or deploy without explicit approval.** `main` pushes go straight to production.
+- Stage explicit paths only, never `git add -A`.
+- These are **local-only** and stay unstaged:
+  - `HANDOFF.md`, `MOBILE_DESIGN_HANDOFF.md`, the README change that links them
+  - `design-previews/` (unselected proposals; don't integrate them)
+  - `public/images/newlogo_newfont_white_solid-cropped.png`, `signature-3095-*.png`, `tree-only-white-transparent.png`
+- After a release, confirm the Vercel deployment for that commit is `READY` and check the live site. A push alone doesn't prove it deployed.
 
-Or connect the GitHub repo to Vercel for automatic deploys on push. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the Vercel dashboard under Environment Variables.
+---
+
+## Not verified yet
+
+- Physical-device Safari
+- Reduced-motion emulation in a browser (reviewed in source only)
+- A full accessibility audit
+- A mobile performance audit
+
+## Open content items
+
+- **Booking:** every CTA (Hero, NavBar, Consultation, FAQ, Footer) scrolls to `#contact`. If the therapist adopts a scheduler (SimplePractice, Jane, etc.), swap in its URL.
+- **Domain:** the only production URL on record is the `vercel.app` alias; connect a custom domain in Vercel when there is one.
