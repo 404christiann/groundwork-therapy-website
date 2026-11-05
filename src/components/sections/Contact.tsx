@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, AnimatePresence } from "framer-motion";
-import { SERVICES } from "@/lib/content";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type FormState = "idle" | "sending" | "success" | "error";
+type SendState = "idle" | "sending" | "sent" | "error";
+type Values = { name: string; email: string; phone: string; service: string; message: string };
+type Field = "message" | "name" | "email";
+
+const EMPTY: Values = { name: "", email: "", phone: "", service: "", message: "" };
 
 const DETAILS = [
   "Free 20-minute consultation call",
@@ -16,13 +19,179 @@ const DETAILS = [
   "Response within 1–2 business days",
 ];
 
+// The speciality menu: plain-language concerns first, then the approaches,
+// then "Not sure yet". Values are what the Supabase `service` column stores.
+const SPECIALITY_OPTIONS = [
+  { value: "anxiety", name: "Anxiety & ADHD", line: "For a mind that’s always on" },
+  { value: "trauma", name: "Trauma", line: "Processing difficult experiences safely" },
+  { value: "life-transitions", name: "Life Transitions", line: "Support through a season of change" },
+  { value: "act", name: "ACT", line: "Let your values, not anxiety, guide you" },
+  { value: "cbt", name: "CBT", line: "Shift the thought patterns keeping you stuck" },
+  { value: "dbt", name: "DBT", line: "Concrete skills for intense emotions" },
+  { value: "general", name: "Not sure yet", line: "That’s okay. We can figure it out together." },
+] as const;
+
+const MESSAGES: Record<Field, string> = {
+  message: "Share a sentence or two, whatever feels right.",
+  name: "Please add your name.",
+  email: "Please add a valid email.",
+};
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const fieldError = (field: Field, values: Values) => {
+  const value = values[field].trim();
+  if (!value) return true;
+  return field === "email" ? !EMAIL.test(value) : false;
+};
+
+function SpecialitySelect({
+  value,
+  onChange,
+  labelId,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  labelId: string;
+}) {
+  const id = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const selectedIndex = SPECIALITY_OPTIONS.findIndex((option) => option.value === value);
+  const selected = selectedIndex >= 0 ? SPECIALITY_OPTIONS[selectedIndex] : null;
+
+  const openMenu = () => {
+    setActive(selectedIndex >= 0 ? selectedIndex : 0);
+    setOpen(true);
+    requestAnimationFrame(() => listRef.current?.focus({ preventScroll: true }));
+  };
+
+  const closeMenu = (returnFocus: boolean) => {
+    setOpen(false);
+    setActive(-1);
+    if (returnFocus) triggerRef.current?.focus({ preventScroll: true });
+  };
+
+  const choose = (index: number) => {
+    onChange(SPECIALITY_OPTIONS[index].value);
+    closeMenu(true);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) closeMenu(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  const onTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      openMenu();
+    }
+  };
+
+  const onListKeyDown = (event: KeyboardEvent<HTMLUListElement>) => {
+    const last = SPECIALITY_OPTIONS.length - 1;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive((index) => Math.min(index + 1, last));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive((index) => Math.max(index - 1, 0));
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      setActive(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      setActive(last);
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (active >= 0) choose(active);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      closeMenu(true);
+    } else if (event.key === "Tab") {
+      closeMenu(false);
+    }
+  };
+
+  return (
+    <div ref={rootRef} className="contact-select" data-open={open ? "" : undefined}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="contact-select-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${id}-list`}
+        aria-labelledby={`${labelId} ${id}-value`}
+        onClick={() => (open ? closeMenu(true) : openMenu())}
+        onKeyDown={onTriggerKeyDown}
+      >
+        <span id={`${id}-value`} className="contact-select-value">
+          {selected ? (
+            <>
+              <span className="contact-select-name">{selected.name}</span>
+              <span className="contact-select-line">{selected.line}</span>
+            </>
+          ) : (
+            <span className="contact-select-placeholder">Choose one, if you know</span>
+          )}
+        </span>
+        <ChevronDown className="contact-select-chevron" size={18} strokeWidth={2} aria-hidden="true" />
+      </button>
+
+      <ul
+        ref={listRef}
+        id={`${id}-list`}
+        role="listbox"
+        tabIndex={-1}
+        aria-labelledby={labelId}
+        aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined}
+        className="contact-select-menu"
+        onKeyDown={onListKeyDown}
+      >
+        {SPECIALITY_OPTIONS.map((option, index) => (
+          <li
+            key={option.value}
+            id={`${id}-option-${index}`}
+            role="option"
+            aria-selected={option.value === value}
+            data-active={index === active ? "" : undefined}
+            data-separated={option.value === "general" ? "" : undefined}
+            className="contact-select-option"
+            onPointerMove={() => setActive(index)}
+            onClick={() => choose(index)}
+          >
+            <span className="contact-select-name">{option.name}</span>
+            <span className="contact-select-line">{option.line}</span>
+            <Check className="contact-select-check" size={18} strokeWidth={2.4} aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const sentTimer = useRef<number | undefined>(undefined);
+  const id = useId();
 
-  const [formState, setFormState] = useState<FormState>("idle");
-  const [values, setValues] = useState({ name: "", email: "", phone: "", service: "", message: "" });
+  const [values, setValues] = useState<Values>(EMPTY);
+  const [invalid, setInvalid] = useState<Partial<Record<Field, boolean>>>({});
+  const [sendState, setSendState] = useState<SendState>("idle");
+  const [thanks, setThanks] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -42,23 +211,57 @@ export default function Contact() {
     return () => ctx.revert();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setValues(v => ({ ...v, [e.target.name]: e.target.value }));
+  useEffect(() => () => window.clearTimeout(sentTimer.current), []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormState("sending");
-    try {
-      const { submitContactForm } = await import("@/lib/supabase");
-      await submitContactForm(values);
-      setFormState("success");
-      setValues({ name: "", email: "", phone: "", service: "", message: "" });
-    } catch {
-      setFormState("error");
+  const update = (key: keyof Values, value: string) => {
+    const next = { ...values, [key]: value };
+    setValues(next);
+    if (sendState === "error") setSendState("idle");
+    // An error clears the moment the value is fixed
+    if (key in MESSAGES && invalid[key as Field] && !fieldError(key as Field, next)) {
+      setInvalid((current) => ({ ...current, [key]: false }));
     }
   };
 
-  const inputCls = "w-full rounded-xl px-4 py-3 text-sm outline-none transition-all duration-200 border";
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (sendState === "sending" || sendState === "sent") return;
+
+    const fields: Field[] = ["message", "name", "email"];
+    const nextInvalid = Object.fromEntries(fields.map((field) => [field, fieldError(field, values)])) as Record<Field, boolean>;
+    setInvalid(nextInvalid);
+    const firstInvalid = fields.find((field) => nextInvalid[field]);
+    if (firstInvalid) {
+      const target = { message: messageRef, name: nameRef, email: emailRef }[firstInvalid];
+      target.current?.focus();
+      return;
+    }
+
+    setSendState("sending");
+    try {
+      const { submitContactForm } = await import("@/lib/supabase");
+      await submitContactForm(values);
+      setSendState("sent");
+      // Let "Sent" register on the button, then the thank-you takes the card
+      sentTimer.current = window.setTimeout(() => {
+        setThanks(true);
+        setValues(EMPTY);
+      }, 650);
+    } catch {
+      setSendState("error");
+    }
+  };
+
+  const fieldProps = (field: Field) => ({
+    "aria-invalid": invalid[field] ? true : undefined,
+    "aria-describedby": `${id}-${field}-msg`,
+  });
+
+  const errorLine = (field: Field) => (
+    <p id={`${id}-${field}-msg`} className="contact-field-msg" aria-live="polite">
+      {invalid[field] ? MESSAGES[field] : ""}
+    </p>
+  );
 
   return (
     <section
@@ -77,7 +280,7 @@ export default function Contact() {
 
         {/* Left */}
         <div ref={leftRef}>
-          <p className="contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--accent-ink)" }}>
+          <p className="contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--button)" }}>
             Get in Touch
           </p>
           <h2
@@ -100,9 +303,9 @@ export default function Contact() {
           <div className="contact-reveal opacity-0 flex flex-col gap-4">
             {DETAILS.map((d, i) => (
               <div key={i} className="flex items-center gap-4">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(153,88,42,0.12)" }}>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(106,74,92,0.12)" }}>
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="var(--accent-ink)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="var(--button)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <span className="text-sm" style={{ color: "var(--muted)" }}>{d}</span>
@@ -111,104 +314,132 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* Right — form card */}
+        {/* Right: one gentle step. What you'd like support with comes first,
+            how to reach you second, all on one card with one Send. */}
         <div ref={rightRef} className="opacity-0">
-          <motion.div
-            className="rounded-2xl p-8 md:p-10"
-            style={{ background: "var(--sand)", border: "1px solid var(--line)" }}
-            whileHover={{ y: -4, boxShadow: "0 20px 60px rgba(43,24,10,0.12)" }}
-            transition={{ type: "spring", stiffness: 300, damping: 24 }}
-          >
-            <AnimatePresence mode="wait">
-              {formState === "success" ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="py-16 text-center"
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.15 }}
-                    className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
-                    style={{ background: "rgba(153,88,42,0.12)" }}
-                  >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" strokeWidth="2">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </motion.div>
-                  <h3 className="text-2xl mb-3" style={{ fontFamily: "var(--font-playfair)", color: "var(--charcoal)" }}>Message received</h3>
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>I&apos;ll be in touch within 1–2 business days.</p>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  onSubmit={handleSubmit}
-                  className="space-y-6"
-                  initial="hidden"
-                  animate="visible"
-                  variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
-                >
-                  {[
-                    <div key="row1" className="grid sm:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.15em] mb-2 font-semibold" style={{ color: "var(--espresso)" }}>Name *</label>
-                        <input name="name" required value={values.name} onChange={handleChange} placeholder="Your full name" className={inputCls} style={{ background: "var(--ivory)", borderColor: "var(--line)", color: "var(--charcoal)" }} />
-                      </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.15em] mb-2 font-semibold" style={{ color: "var(--espresso)" }}>Email *</label>
-                        <input name="email" type="email" required value={values.email} onChange={handleChange} placeholder="you@example.com" className={inputCls} style={{ background: "var(--ivory)", borderColor: "var(--line)", color: "var(--charcoal)" }} />
-                      </div>
-                    </div>,
-                    <div key="row2" className="grid sm:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.15em] mb-2 font-semibold" style={{ color: "var(--espresso)" }}>Phone</label>
-                        <input name="phone" type="tel" value={values.phone} onChange={handleChange} placeholder="(555) 000-0000" className={inputCls} style={{ background: "var(--ivory)", borderColor: "var(--line)", color: "var(--charcoal)" }} />
-                      </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.15em] mb-2 font-semibold" style={{ color: "var(--espresso)" }}>Interested in</label>
-                        <select name="service" value={values.service} onChange={handleChange} className={inputCls} style={{ background: "var(--ivory)", borderColor: "var(--line)", color: "var(--charcoal)" }}>
-                          <option value="">Select one...</option>
-                          {SERVICES.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-                          <option value="general">Not sure yet</option>
-                        </select>
-                      </div>
-                    </div>,
-                    <div key="row3">
-                      <label className="block text-xs uppercase tracking-[0.15em] mb-2 font-semibold" style={{ color: "var(--espresso)" }}>What brings you here? *</label>
-                      <textarea name="message" required value={values.message} onChange={handleChange} rows={4} placeholder="Share a bit about what you're looking for..." className={`${inputCls} resize-none`} style={{ background: "var(--ivory)", borderColor: "var(--line)", color: "var(--charcoal)" }} />
-                    </div>,
-                  ].map((field, i) => (
-                    <motion.div
-                      key={i}
-                      variants={{
-                        hidden: { opacity: 0, y: 16 },
-                        visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
-                      }}
-                    >
-                      {field}
-                    </motion.div>
-                  ))}
+          <div className="contact-card">
+            <div className="contact-swap" data-sent={thanks ? "" : undefined}>
+              <form className="contact-form" onSubmit={handleSubmit} noValidate aria-hidden={thanks || undefined}>
+                <div className="contact-group">
+                  <h3 className="contact-group-title">What would you like support with?</h3>
+                  <p id={`${id}-speciality-label`} className="contact-hint">
+                    Pick one if you know. It’s fine if you don’t.
+                  </p>
+                  <SpecialitySelect
+                    value={values.service}
+                    onChange={(value) => update("service", value)}
+                    labelId={`${id}-speciality-label`}
+                  />
+                  <div className="contact-field" data-invalid={invalid.message ? "" : undefined}>
+                    <label htmlFor={`${id}-message`}>What brings you here?</label>
+                    <textarea
+                      ref={messageRef}
+                      id={`${id}-message`}
+                      name="message"
+                      rows={4}
+                      value={values.message}
+                      onChange={(event) => update("message", event.target.value)}
+                      placeholder="Share a bit about what you’re looking for…"
+                      className="contact-control contact-control--area"
+                      {...fieldProps("message")}
+                    />
+                    {errorLine("message")}
+                  </div>
+                </div>
 
-                  {formState === "error" && (
-                    <p className="text-red-500 text-xs">Something went wrong — please try again.</p>
-                  )}
+                <div className="contact-group">
+                  <h3 className="contact-group-title">How can I reach you?</h3>
+                  <div className="contact-two">
+                    <div className="contact-field" data-invalid={invalid.name ? "" : undefined}>
+                      <label htmlFor={`${id}-name`}>Name</label>
+                      <input
+                        ref={nameRef}
+                        id={`${id}-name`}
+                        name="name"
+                        autoComplete="name"
+                        value={values.name}
+                        onChange={(event) => update("name", event.target.value)}
+                        placeholder="Your full name"
+                        className="contact-control"
+                        {...fieldProps("name")}
+                      />
+                      {errorLine("name")}
+                    </div>
+                    <div className="contact-field" data-invalid={invalid.email ? "" : undefined}>
+                      <label htmlFor={`${id}-email`}>Email</label>
+                      <input
+                        ref={emailRef}
+                        id={`${id}-email`}
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={values.email}
+                        onChange={(event) => update("email", event.target.value)}
+                        placeholder="you@example.com"
+                        className="contact-control"
+                        {...fieldProps("email")}
+                      />
+                      {errorLine("email")}
+                    </div>
+                    <div className="contact-field contact-field--full">
+                      <label htmlFor={`${id}-phone`}>
+                        Phone <span className="contact-optional">optional</span>
+                      </label>
+                      <input
+                        id={`${id}-phone`}
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        value={values.phone}
+                        onChange={(event) => update("phone", event.target.value)}
+                        placeholder="(555) 000-0000"
+                        className="contact-control"
+                      />
+                    </div>
+                  </div>
+                </div>
 
+                <div className="contact-foot">
                   <button
                     type="submit"
-                    disabled={formState === "sending"}
-                    className="w-full py-4 rounded-full text-xs font-semibold tracking-widest uppercase transition-all duration-300 disabled:opacity-50 hover:-translate-y-0.5 hover:opacity-90"
-                    style={{ background: "var(--accent)", color: "var(--white)" }}
+                    className="contact-send"
+                    data-state={sendState === "error" ? "idle" : sendState}
+                    aria-disabled={sendState === "sending" || sendState === "sent" || undefined}
                   >
-                    {formState === "sending" ? "Sending..." : "Send Message"}
+                    <span className="contact-send-state contact-send-idle">
+                      Send message <ArrowRight className="contact-send-arrow" size={18} strokeWidth={2} aria-hidden="true" />
+                    </span>
+                    <span className="contact-send-state contact-send-sending" aria-hidden={sendState !== "sending"}>
+                      <span className="contact-spinner" aria-hidden="true" />
+                      Sending
+                    </span>
+                    <span className="contact-send-state contact-send-sent" aria-hidden={sendState !== "sent"}>
+                      <Check size={18} strokeWidth={2.4} aria-hidden="true" />
+                      Sent
+                    </span>
                   </button>
+                  <p className="contact-error" role="alert">
+                    {sendState === "error" ? "Something went wrong. Please try again." : ""}
+                  </p>
+                  <p className="contact-crisis">
+                    In a mental health crisis, please call <a href="tel:988">988</a>.
+                  </p>
+                </div>
+              </form>
 
-                </motion.form>
-              )}
-            </AnimatePresence>
-          </motion.div>
+              <div className="contact-thanks" aria-live="polite">
+                {thanks ? (
+                  <>
+                    <span className="contact-thanks-tick" aria-hidden="true">
+                      <Check size={24} strokeWidth={2.2} />
+                    </span>
+                    <h3 className="contact-thanks-title">Message received</h3>
+                    <p className="contact-thanks-copy">I&apos;ll be in touch within 1–2 business days.</p>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

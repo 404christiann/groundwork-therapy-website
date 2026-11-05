@@ -158,7 +158,7 @@ export default function FAQ() {
 
         {/* Header */}
         <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--accent-ink)" }}>
+          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--button)" }}>
             Common Questions
           </p>
           <h2
@@ -199,8 +199,7 @@ export default function FAQ() {
             </p>
             <button
               onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-8 py-3.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: "var(--accent)", color: "var(--white)" }}
+              className="px-8 py-3.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-[background-color,translate,scale,opacity] duration-200 ease-out hover:-translate-y-0.5 bg-[var(--button)] text-[var(--button-ink)] hover:bg-[var(--button-hover)] active:scale-[0.97]"
             >
               Reach Out
             </button>

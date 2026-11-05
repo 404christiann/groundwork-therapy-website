@@ -3,10 +3,13 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import BrandWordmark from "@/components/ui/BrandWordmark";
+import { NAV_LINKS } from "@/lib/content";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const FOOTER_LINKS = [...NAV_LINKS, { label: "Connect", href: "#contact" }];
 
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
@@ -14,121 +17,66 @@ export default function Footer() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const items = footerRef.current?.querySelectorAll(".footer-reveal");
+      const trigger = { trigger: footerRef.current, start: "top 90%" };
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(items ?? [], { opacity: 1, y: 0, filter: "blur(0px)" });
+        gsap.fromTo(items ?? [], { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none", scrollTrigger: trigger });
         return;
       }
       gsap.fromTo(
         items ?? [],
-        { opacity: 0, y: 18, filter: "blur(5px)" },
-        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.75, stagger: 0.09, ease: "power2.out", scrollTrigger: { trigger: footerRef.current, start: "top 88%" } }
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: "power3.out", scrollTrigger: trigger }
       );
     }, footerRef);
     return () => ctx.revert();
   }, []);
 
+  const backToTop = () => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
+
   return (
-    <footer ref={footerRef} style={{ background: "#E2725B", color: "#FFFFFF" }}>
+    <footer ref={footerRef} className="site-footer">
+      <button
+        type="button"
+        onClick={backToTop}
+        className="footer-reveal footer-brand opacity-0"
+        aria-label="Tiffany Venegas, LCSW — back to top"
+      >
+        <Image src="/images/mark-ink.png" alt="" width={706} height={755} className="footer-brand-mark" />
+        <BrandWordmark className="footer-brand-wordmark" />
+      </button>
 
-      {/* Main footer body */}
-      <div className="max-w-7xl mx-auto px-8 md:px-14 pt-16 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 items-start">
+      <p className="footer-reveal footer-tagline opacity-0">
+        Evidence-based therapy for high-functioning adults and teens in California.
+      </p>
 
-          {/* Col 1 — Logo + tagline */}
-          <div className="footer-reveal opacity-0 flex flex-col gap-5">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="footer-brand"
-              aria-label="Ground Work Therapy — back to top"
-            >
-              <Image
-                src="/images/mark-ink.png"
-                alt=""
-                width={706}
-                height={755}
-                className="footer-brand-mark"
-              />
-              <BrandWordmark className="footer-brand-wordmark" />
-            </button>
-            <p className="text-sm leading-relaxed max-w-[220px]" style={{ color: "#FFFFFF" }}>
-              Evidence-based therapy for high-functioning adults and teens in California.
-            </p>
-          </div>
+      <nav className="footer-reveal footer-nav opacity-0" aria-label="Footer">
+        {FOOTER_LINKS.map((link) => (
+          <a key={link.href} href={link.href} className="footer-link">
+            {link.label}
+          </a>
+        ))}
+      </nav>
 
-          {/* Col 2 — Credentials */}
-          <div className="footer-reveal opacity-0 flex flex-col gap-4">
-            <p className="text-xs uppercase tracking-[0.25em] mb-0 font-semibold" style={{ color: "#FFFFFF" }}>
-              License
-            </p>
-            <div
-              className="rounded-xl px-5 py-4 inline-flex flex-col gap-1"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.25)" }}
-            >
-              <p className="text-base font-semibold" style={{ fontFamily: "var(--font-playfair)", color: "#FFFFFF" }}>
-                Tiffany Venegas
-              </p>
-              <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
-                Licensed Clinical Social Worker
-              </p>
-              <p className="text-xs font-semibold tracking-[0.1em] mt-1" style={{ color: "#FFFFFF" }}>
-                LCSW #130210
-              </p>
-            </div>
-            <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
-              Providing telehealth services throughout California.
-            </p>
-          </div>
+      <p className="footer-reveal footer-license opacity-0">
+        <span>Licensed Clinical Social Worker</span>
+        <span>LCSW #130210</span>
+        <span>Telehealth throughout California</span>
+      </p>
 
-          {/* Col 3 — Nav */}
-          <div className="footer-reveal opacity-0 flex flex-col gap-1">
-            <p className="text-xs uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: "#FFFFFF" }}>
-              Navigate
-            </p>
-            {["About", "Approach", "Services"].map(label => (
-              <button
-                key={label}
-                onClick={() => document.querySelector(`#${label.toLowerCase()}`)?.scrollIntoView({ behavior: "smooth" })}
-                className="text-sm font-medium text-left py-1.5 transition-all duration-200 hover:translate-x-1"
-                style={{ color: "#FFFFFF" }}
-              >
-                {label}
-              </button>
-            ))}
-            <button
-              onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-              className="text-sm font-medium text-left py-1.5 transition-all duration-200 hover:translate-x-1"
-              style={{ color: "#FFFFFF" }}
-            >
-              Connect
-            </button>
-          </div>
+      <p className="footer-reveal footer-crisis opacity-0">
+        <a href="tel:988" className="footer-crisis-number" aria-label="Call 988">
+          988
+        </a>
+        <span>If you are experiencing a mental health crisis, please call 988 or go to your nearest emergency room.</span>
+      </p>
 
-        </div>
+      <div className="footer-reveal footer-base opacity-0">
+        <p>© {new Date().getFullYear()} Ground Work Therapy. All rights reserved.</p>
+        <p>This site is for informational purposes only and does not constitute a therapeutic relationship.</p>
       </div>
-
-      {/* Crisis line */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)" }}>
-        <div className="footer-reveal opacity-0 max-w-7xl mx-auto px-8 md:px-14 py-4 text-center">
-          <p className="text-xs leading-relaxed" style={{ color: "#FFFFFF" }}>
-            If you are experiencing a mental health crisis, please call{" "}
-            <a href="tel:988" className="underline underline-offset-2 hover:opacity-80 transition-opacity">988</a>{" "}
-            or go to your nearest emergency room.
-          </p>
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)" }}>
-        <div className="footer-reveal opacity-0 max-w-7xl mx-auto px-8 md:px-14 py-5 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-xs" style={{ color: "#FFFFFF" }}>
-            © {new Date().getFullYear()} Ground Work Therapy. All rights reserved.
-          </p>
-          <p className="text-xs text-center md:text-right max-w-sm" style={{ color: "#FFFFFF" }}>
-            This site is for informational purposes only and does not constitute a therapeutic relationship.
-          </p>
-        </div>
-      </div>
-
     </footer>
   );
 }

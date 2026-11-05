@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -89,6 +90,7 @@ export default function Hero() {
 
         <a className="hero-connect" href="#contact">
           Let’s connect
+          <ArrowRight className="hero-connect-arrow" size={18} strokeWidth={1.8} aria-hidden="true" />
         </a>
       </div>
 

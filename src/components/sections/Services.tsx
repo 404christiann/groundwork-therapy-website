@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import Image from "next/image";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const SERVICES = [
   {
@@ -76,240 +74,226 @@ const SERVICES = [
   },
 ] as const;
 
+const COUNT = SERVICES.length;
+const DEAL_MS = 380;
+const SWIPE_PX = 48;
+
+// Depth 0 is the top card. Small alternating angles and uneven offsets so the
+// pile reads as loose cards; anything deeper than 2 waits, hidden, behind it.
+const POSES = [
+  { x: 0, y: 0, r: -2 },
+  { x: 18, y: -8, r: 4 },
+  { x: -18, y: 10, r: -6 },
+] as const;
+const GONE = "translate(-70%, 6%) rotate(-14deg)";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
 export default function Services() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const [top, setTop] = useState(0);
+  // The card being dealt away (next) or brought back from the left (previous)
+  const [leaving, setLeaving] = useState<number | null>(null);
+  const [entering, setEntering] = useState<number | null>(null);
+  const topRef = useRef(0);
+  const busy = useRef(false);
+  const timer = useRef<number | undefined>(undefined);
+  const frame = useRef<number | undefined>(undefined);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const media = gsap.matchMedia();
-    media.add({
-      compact: "(max-width: 767px)",
-      desktop: "(min-width: 768px)",
-      reducedMotion: "(prefers-reduced-motion: reduce)",
-      shortScreen: "(max-height: 599px)",
-    }, (context) => {
-      const section = sectionRef.current!;
-      const stage = section.querySelector<HTMLElement>(".service-stack-stage")!;
-      const cards = Array.from(section.querySelectorAll<HTMLElement>(".service-stack-card"));
-      const heading = sectionRef.current?.querySelector<HTMLElement>(
-        ".service-stack-heading",
-      );
-      const { compact: isCompact, reducedMotion, shortScreen } = context.conditions!;
+    topRef.current = top;
+  }, [top]);
 
-      if (reducedMotion || shortScreen) {
-        section.dataset.stackFlow = "true";
-        gsap.set(cards, { clearProps: "transform,opacity,visibility,filter" });
-        if (heading) {
-          gsap.set(heading, { clearProps: "transform,opacity,visibility" });
-        }
-        return () => {
-          delete section.dataset.stackFlow;
-        };
-      }
+  useEffect(
+    () => () => {
+      window.clearTimeout(timer.current);
+      if (frame.current) window.cancelAnimationFrame(frame.current);
+    },
+    [],
+  );
 
-      const scaleStep = isCompact ? 0.07 : 0.12;
-      const maximumVisibleDepth = 3;
+  const release = () => {
+    timer.current = window.setTimeout(() => {
+      busy.current = false;
+    }, DEAL_MS);
+  };
 
-      const renderStack = (progress: number) => {
-        // Include one final interval so the last card exits before the following
-        // section arrives. Reversing the scroll reconstructs the same stack.
-        const activePosition = progress * cards.length;
-        const stageBottom =
-          sectionRef.current?.querySelector<HTMLElement>(".service-stack-stage")
-            ?.getBoundingClientRect().bottom ?? window.innerHeight;
+  const next = useCallback(() => {
+    if (busy.current) return;
+    const current = topRef.current;
+    if (reduceMotion) {
+      setTop((current + 1) % COUNT);
+      return;
+    }
+    busy.current = true;
+    setLeaving(current);
+    timer.current = window.setTimeout(() => {
+      setTop((current + 1) % COUNT);
+      setLeaving(null);
+      busy.current = false;
+    }, DEAL_MS);
+  }, [reduceMotion]);
 
-        // Keep the section title present while the cards are active, then let
-        // it leave with the final card. Because this is derived from scroll
-        // progress, it restores itself naturally when the user scrolls back.
-        if (heading) {
-          const headingExitStart = 0.94;
-          const headingExitProgress = gsap.utils.clamp(
-            0,
-            1,
-            (progress - headingExitStart) / (1 - headingExitStart),
-          );
-          const easedHeadingExit =
-            headingExitProgress *
-            headingExitProgress *
-            (3 - 2 * headingExitProgress);
+  const previous = useCallback(() => {
+    if (busy.current) return;
+    const target = (topRef.current - 1 + COUNT) % COUNT;
+    if (reduceMotion) {
+      setTop(target);
+      return;
+    }
+    busy.current = true;
+    // Place the returning card off to the left with no transition, then let it
+    // glide onto the top of the pile on the next frame.
+    setEntering(target);
+    frame.current = window.requestAnimationFrame(() => {
+      frame.current = window.requestAnimationFrame(() => {
+        setTop(target);
+        setEntering(null);
+        release();
+      });
+    });
+  }, [reduceMotion]);
 
-          gsap.set(heading, {
-            y: -12 * easedHeadingExit,
-            opacity: 1 - easedHeadingExit,
-            visibility: easedHeadingExit < 0.99 ? "visible" : "hidden",
-          });
-        }
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      next();
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      previous();
+    }
+  };
 
-        cards.forEach((card, index) => {
-          const relativePosition = index - activePosition;
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary) return;
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+  };
 
-          if (relativePosition < 0) {
-            const leaving = Math.min(1, Math.abs(relativePosition));
-            // Finished cards must stop painting, including after anchor jumps
-            // and refreshes where the stage may already be above the viewport.
-            if (leaving >= 1) {
-              gsap.set(card, { opacity: 0, visibility: "hidden" });
-              return;
-            }
-            const completedScale = 1.12 + index * 0.008;
+  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) next();
+    else previous();
+  };
 
-            gsap.set(card, {
-              yPercent: 0,
-              y: -Math.max(0, stageBottom) * leaving,
-              scale: 1 + (completedScale - 1) * leaving,
-              rotateX: 15 * leaving,
-              opacity: 1,
-              visibility: "visible",
-              filter: "blur(0px)",
-              zIndex: cards.length - index,
-              transformOrigin: "50% 100%",
-            });
-            return;
-          }
-
-          const visualDepth = Math.min(relativePosition, maximumVisibleDepth);
-          const depthOffset =
-            15 * Math.min(visualDepth, 1) + 5 * Math.max(visualDepth - 1, 0);
-
-          gsap.set(card, {
-            yPercent: 0,
-            y: isCompact ? depthOffset * 0.72 : depthOffset,
-            scale: 1 - visualDepth * scaleStep,
-            rotateX: 0,
-            opacity: 1,
-            visibility: "visible",
-            filter: "blur(0px)",
-            zIndex: cards.length - index,
-            transformOrigin: "50% 100%",
-          });
-        });
-      };
-
-      let trigger: ScrollTrigger | undefined;
-      let frame = 0;
-      let lastLayout = "";
-      const content = cards.map((card) =>
-        card.querySelector<HTMLElement>(".service-stack-content")!,
-      );
-      const verticalPadding = (element: HTMLElement) => {
-        const style = getComputedStyle(element);
-        return parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-      };
-
-      const updateLayout = () => {
-        frame = 0;
-        const wasFlow = section.dataset.stackFlow === "true";
-        // Measure the pinned layout before deciding whether its full contents
-        // fit. Restore the final mode synchronously, before the browser paints.
-        delete section.dataset.stackFlow;
-        const stageHeight = stage.clientHeight;
-        const requiredHeights = content.map((text, index) => {
-          const card = cards[index];
-          const copy = text.parentElement!;
-          const image = card.querySelector<HTMLElement>(".service-stack-image-wrap")!;
-          return text.offsetHeight + verticalPadding(copy) + verticalPadding(card)
-            + (isCompact ? parseFloat(getComputedStyle(image).minHeight) : 0);
-        });
-        const needsFlow = requiredHeights.some((height) => height > stageHeight);
-        if (needsFlow) section.dataset.stackFlow = "true";
-
-        const trackTop = Math.round(trackRef.current!.getBoundingClientRect().top + window.scrollY);
-        const layout = [
-          stage.clientWidth, stageHeight, window.innerHeight, trackTop,
-          ...requiredHeights, needsFlow,
-        ].join(":");
-        if (layout === lastLayout) return;
-        lastLayout = layout;
-
-        if (needsFlow) {
-          trigger?.kill();
-          trigger = undefined;
-          gsap.set(cards, { clearProps: "transform,opacity,visibility,filter" });
-          if (heading) gsap.set(heading, { clearProps: "transform,opacity,visibility" });
-        } else if (!trigger) {
-          trigger = ScrollTrigger.create({
-            trigger: trackRef.current,
-            start: isCompact ? "top top+=88" : "top top+=112",
-            end: "bottom bottom",
-            invalidateOnRefresh: true,
-            onRefresh: (self) => renderStack(self.progress),
-            onUpdate: (self) => renderStack(self.progress),
-          });
-          renderStack(trigger.progress);
-        } else {
-          trigger.refresh();
-        }
-        if (wasFlow !== needsFlow) ScrollTrigger.refresh();
-      };
-
-      const scheduleLayout = () => {
-        if (!frame) frame = window.requestAnimationFrame(updateLayout);
-      };
-      const observer = new ResizeObserver(scheduleLayout);
-      observer.observe(stage);
-      // Accordions and late-loading content above can move the track without
-      // changing the cards themselves. Keep its scroll boundaries current.
-      observer.observe(section.closest("main") ?? document.body);
-      content.forEach((text) => observer.observe(text));
-      window.addEventListener("resize", scheduleLayout, { passive: true });
-      updateLayout();
-
-      return () => {
-        observer.disconnect();
-        window.removeEventListener("resize", scheduleLayout);
-        if (frame) window.cancelAnimationFrame(frame);
-        trigger?.kill();
-        delete section.dataset.stackFlow;
-      };
-    }, sectionRef);
-
-    return () => media.revert();
-  }, []);
+  const service = SERVICES[top];
 
   return (
-    <section id="services" ref={sectionRef} className="services-stack-section">
-      <div ref={trackRef} className="service-stack-track px-4 md:px-8">
-        <div className="service-stack-viewport">
-          <div className="service-stack-heading mx-auto max-w-[1000px]">
-            <h2
-              className="text-4xl leading-[1.05] md:text-5xl lg:text-6xl"
-              style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
-            >
-              Specialities
-            </h2>
+    <section id="services" className="specialities-section" aria-labelledby="specialities-heading">
+      <div className="specialities-inner">
+        <h2
+          id="specialities-heading"
+          className="text-4xl leading-[1.05] md:text-5xl lg:text-6xl"
+          style={{ fontFamily: "var(--font-playfair)", color: "#3E3842" }}
+        >
+          Specialities
+        </h2>
+
+        {/* Every speciality in full, in the page's text: read by screen readers
+            and indexed by search engines, while the deck below shows one at a
+            time. Visually hidden, not display:none, so it stays in the page. */}
+        <ul className="sr-only">
+          {SERVICES.map((item) => (
+            <li key={item.id}>
+              <h3>
+                {item.label}: {item.name}
+              </h3>
+              <p>{item.description}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div
+          className="deck"
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Specialities"
+          onKeyDown={onKeyDown}
+        >
+          <div
+            className="deck-pile"
+            onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => {
+              swipeStart.current = null;
+            }}
+          >
+            {SERVICES.map((item, index) => {
+              const depth = (index - top + COUNT) % COUNT;
+              const pose = POSES[Math.min(depth, POSES.length - 1)];
+              const away = leaving === index || entering === index;
+              return (
+                <article
+                  key={item.id}
+                  className="deck-card"
+                  aria-hidden="true"
+                  data-top={depth === 0 && !away ? "" : undefined}
+                  data-leaving={leaving === index ? "" : undefined}
+                  data-entering={entering === index ? "" : undefined}
+                  style={{
+                    backgroundColor: item.color,
+                    zIndex: away ? COUNT + 1 : COUNT - depth,
+                    opacity: away || depth > 2 ? 0 : 1,
+                    transform: away ? GONE : `translate(${pose.x}px, ${pose.y}px) rotate(${pose.r}deg)`,
+                  }}
+                >
+                  <div className="deck-art">
+                    <Image
+                      src={item.imageSrc}
+                      alt=""
+                      fill
+                      sizes="(max-width: 767px) 248px, 300px"
+                      draggable={false}
+                      className="deck-image"
+                      style={{ objectPosition: item.imagePosition }}
+                    />
+                  </div>
+                  <div className="deck-band">
+                    <span className="deck-num">{item.num}</span>
+                    <span className="deck-label">{item.label}</span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
-          <div className="service-stack-stage mx-auto max-w-[1000px]">
-            {SERVICES.map((service, index) => (
-              <article
-                key={service.id}
-                className="service-stack-card"
-                style={{ backgroundColor: service.color, zIndex: SERVICES.length - index }}
-                aria-labelledby={`service-${service.id}-title`}
-              >
-                <div className="service-stack-copy">
-                  <div className="service-stack-content">
-                    <p className="service-stack-number">{service.num}</p>
-                    <p className="service-stack-label">{service.label}</p>
-                    <h3 id={`service-${service.id}-title`} className="service-stack-title">
-                      {service.name}
-                    </h3>
-                    <p className="service-stack-description">{service.description}</p>
-                  </div>
-                </div>
-
-                <div className="service-stack-image-wrap" aria-hidden="true">
-                  <Image
-                    src={service.imageSrc}
-                    alt=""
-                    fill
-                    sizes="(max-width: 767px) calc(100vw - 52px), 408px"
-                    className="service-stack-image"
-                    style={{ objectPosition: service.imagePosition }}
-                  />
-                </div>
-              </article>
-            ))}
+          <div className="deck-copy">
+            <p className="deck-count" aria-hidden="true">
+              <span>{service.num}</span>
+              <span className="deck-count-of">/ {pad(COUNT)}</span>
+            </p>
+            {/* The full text of all six lives in the list above; this visible
+                copy only mirrors the top card, so assistive tech skips it. */}
+            <p className="sr-only" aria-live="polite">
+              Showing {service.label}, {Number(service.num)} of {COUNT}
+            </p>
+            <div className="deck-text" aria-hidden="true">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={service.id}
+                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, transition: { duration: 0.14, ease: "easeOut" } }}
+                  transition={{ duration: 0.26, ease: [0.23, 1, 0.32, 1] }}
+                >
+                  <p className="deck-name">{service.name}</p>
+                  <p className="deck-desc">{service.description}</p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            <div className="deck-controls">
+              <button type="button" className="deck-btn" onClick={previous} aria-label="Previous speciality">
+                <ChevronLeft size={20} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+              <button type="button" className="deck-btn deck-btn--primary" onClick={next} aria-label="Next speciality">
+                <ChevronRight size={20} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
