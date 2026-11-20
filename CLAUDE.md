@@ -56,7 +56,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 |  | `ui/NavBar.tsx` | none | Desktop floating "island" that compacts on scroll; mobile sticky header plus full-screen menu with focus trap, Escape and scroll lock |
 | 1 | `sections/Hero.tsx` | none | Portrait with gradient mask, GSAP word reveal, "Let's connect" links to `#contact` |
 | 2 | `sections/Consultation.tsx` | none | "Is this you?" `IDEAL_TRAITS` accordion (lucide icons) plus image gallery |
-| 3 | `sections/About.tsx` | `#about` | Photo, bio, `CREDENTIALS` array |
+| 3 | `sections/About.tsx` | `#about` | Photo, bio, `EDUCATION` array (two degrees) |
 | 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
 | 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
 | 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, cancellation policy, Good Faith Estimate) |
@@ -73,7 +73,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 Most copy is hardcoded in the component that renders it:
 
 - `Consultation.tsx`: `IDEAL_TRAITS`, `GALLERY_IMAGES`
-- `About.tsx`: `CREDENTIALS` and bio JSX
+- `About.tsx`: `EDUCATION` and bio JSX
 - `Approach.tsx`: `PILLARS`
 - `Services.tsx`: `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
 - `FAQ.tsx`: `FAQS` (an answer can be JSX, as the cancellation policy is, for paragraphs and bold text)
