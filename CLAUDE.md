@@ -37,7 +37,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 - **Brand:** the tree mark `/images/mark-ink.png` plus the name lockup in `src/components/ui/BrandWordmark.tsx`: "Tiffany Venegas" over a spaced "LCSW" with thin rules running to the name's edges. The favicon and `src/app/icon.png` use the tree mark.
   - LCSW is deliberately centred under the space between the two names, not the lockup's exact middle ("Venegas" is wider). The `--wm-shift` constant in `globals.css` (-0.183 × name size) was measured with the site's own fonts. Re-measure it if the name, font or tracking changes.
   - Each context sets its own `--wm-name` / `--wm-cred` sizes (desktop 31/9px, mobile 23/7px, footer 29/8.5px). The desktop word slot is fixed at 193.3px wide for the scroll collapse.
-  - The page title, Open Graph and Twitter titles, and the footer copyright read "Tiffany Venegas, LCSW". "Ground Work Therapy" remains only in the About photo alt text.
+  - The footer copyright reads "Tiffany Venegas, LCSW". The page title is "Tiffany Venegas, LCSW | Online Therapy for Teens & Adults in California" and the Open Graph/Twitter titles "Tiffany Venegas, LCSW | Online Therapy in California" (search and AI discoverability, Nov 2026). "Ground Work Therapy" remains only in the About photo alt text.
   - Link previews (iMessage, Slack, social) use `src/app/opengraph-image.png`: the tree mark on cream, 1200×630, made from `public/images/mark-ink.png`. Without it, iMessage picks the hero portrait. `metadataBase` in `layout.tsx` makes the image URL absolute.
 - **Hero heading:** `Where insight` / italic `becomes change.`, and the second line must stay on one line, including mobile.
 - **Every accent on the site is Dusty Plum** (site-wide audit, Nov 2026): buttons, eyebrows, counters, icons, plus signs, focus rings, glows, the highlighter and text selection. No `--accent` / `--accent-ink` (yellow, gold) remain in use; the legacy aliases `--teal-*`, `--gold` and `--text-light` now point at `--button`. Deliberately not plum: the six speciality card colours, the hero photo grey `#DCD2D0` and warm neutral shadows.
@@ -68,6 +68,12 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 
 ---
 
+## Search and AI discoverability
+
+- `src/lib/structured-data.ts` is the JSON-LD (WebSite, Person, ProfessionalService, FAQPage) rendered in `layout.tsx`. Use only facts the site already shows: no invented credentials, reviews, ratings or claims. Update it when the fee, specialities, license, education or booking link change.
+- `src/app/robots.ts` allows every crawler (AI ones included) and points to `src/app/sitemap.ts`. `public/llms.txt` is a plain-text summary for AI tools; keep it in sync with the site copy.
+- Every FAQ answer stays in the HTML even when collapsed (height 0, `inert`), so crawlers that don't click can read them. Don't go back to mounting only the open answer.
+
 ## Where copy lives
 
 Most copy is hardcoded in the component that renders it:
@@ -76,7 +82,7 @@ Most copy is hardcoded in the component that renders it:
 - `About.tsx`: `EDUCATION` and bio JSX
 - `Approach.tsx`: `PILLARS`
 - `Services.tsx`: `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
-- `FAQ.tsx`: `FAQS` (an answer can be JSX, as the cancellation policy is, for paragraphs and bold text)
+- `src/lib/faq.ts`: `FAQS`, rendered by `FAQ.tsx` and reused in the FAQPage structured data. Each answer is a list of paragraphs; `**text**` renders bold
 - `Contact.tsx`: `DETAILS` (the three facts) and `STEPS` ("What happens next")
 - `src/lib/content.ts`: `NAV_LINKS` and `CLIENT_PORTAL_URL` (the SimplePractice portal, ready for other booking buttons to use).
 
