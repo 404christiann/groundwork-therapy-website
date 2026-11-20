@@ -4,12 +4,9 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
+import { CLIENT_PORTAL_URL } from "@/lib/content";
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Booking and messages go through SimplePractice, which is HIPAA compliant.
-// The site itself never collects client details.
-const CLIENT_PORTAL_URL = "https://tiffanyvenegaslcsw.clientsecure.me";
 
 const DETAILS = [
   "Free 20-minute consultation call",
@@ -72,7 +69,7 @@ export default function Contact() {
 
         {/* Left */}
         <div ref={leftRef}>
-          <p className="contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--button)" }}>
+          <p className="serif-label contact-reveal opacity-0 text-sm uppercase tracking-[0.25em] mb-6" style={{ color: "var(--button)" }}>
             Get in Touch
           </p>
           <h2
@@ -110,7 +107,8 @@ export default function Contact() {
         <div ref={rightRef} className="opacity-0">
           <div className="contact-card">
             <h3 className="contact-card-title">What happens next</h3>
-            <ol className="contact-steps">
+            {/* role="list" keeps the list semantics Safari drops when list styling is reset */}
+            <ol className="contact-steps" role="list">
               {STEPS.map((step, i) => (
                 <li key={step.title} className="contact-step">
                   <span className="contact-step-num" aria-hidden="true">{i + 1}</span>

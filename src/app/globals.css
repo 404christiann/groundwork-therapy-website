@@ -1326,6 +1326,12 @@ h1, h2 {
   line-height: 1.55;
 }
 
+/* Small labels set in the display serif, matching the Consultation line
+   "If this sounds like you, I'd love to connect." */
+.serif-label {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+
 .faq-accordion-description {
   max-width: 68ch;
 }
@@ -1890,7 +1896,7 @@ h1, h2 {
 
 .contact-portal:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--studio), 0 0 0 5px var(--button);
+  box-shadow: 0 0 0 3px var(--sand), 0 0 0 5px var(--button);
 }
 
 .contact-note,

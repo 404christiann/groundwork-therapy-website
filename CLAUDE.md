@@ -59,7 +59,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 | 3 | `sections/About.tsx` | `#about` | Photo, bio, `CREDENTIALS` array |
 | 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
 | 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
-| 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, Good Faith Estimate) |
+| 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, cancellation policy, Good Faith Estimate) |
 | 7 | `sections/Contact.tsx` | `#contact` | Heading and three checkmarks on the left; a "What happens next" card on the right (three steps) with a button that opens the SimplePractice client portal in a new tab. No form |
 | 8 | `ui/Footer.tsx` | none | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
 
@@ -77,8 +77,8 @@ Most copy is hardcoded in the component that renders it:
 - `Approach.tsx`: `PILLARS`
 - `Services.tsx`: `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
 - `FAQ.tsx`: `FAQS` (an answer can be JSX, as the cancellation policy is, for paragraphs and bold text)
-- `Contact.tsx`: `DETAILS` (the three facts), `STEPS` ("What happens next") and `CLIENT_PORTAL_URL`
-- `src/lib/content.ts`: `NAV_LINKS`.
+- `Contact.tsx`: `DETAILS` (the three facts) and `STEPS` ("What happens next")
+- `src/lib/content.ts`: `NAV_LINKS` and `CLIENT_PORTAL_URL` (the SimplePractice portal, ready for other booking buttons to use).
 
 ---
 

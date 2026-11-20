@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 const FAQS: { q: string; a: ReactNode }[] = [
   {
     q: "How much does a session cost?",
-    a: "Sessions are $140 for a 55 minute appointment. If cost feels like a barrier, reach out. I'm happy to have an honest conversation about it.",
+    a: "Sessions are $140 for a 55-minute appointment. If cost feels like a barrier, reach out. I'm happy to have an honest conversation about it.",
   },
   {
     q: "Do you accept insurance?",
@@ -59,7 +59,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
   },
   {
     q: "How do I get started?",
-    a: "Start by scheduling a free 20 minute consultation. It's a low pressure conversation where we can connect and see if working together feels right. No commitment required.",
+    a: "Start by scheduling a free 20-minute consultation through my secure client portal. It's a low-pressure conversation where we can connect and see if working together feels right. No commitment required.",
   },
 ];
 
@@ -183,7 +183,7 @@ export default function FAQ() {
 
         {/* Header */}
         <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--button)" }}>
+          <p className="serif-label text-sm uppercase tracking-[0.25em] mb-6" style={{ color: "var(--button)" }}>
             Common Questions
           </p>
           <h2
@@ -219,7 +219,7 @@ export default function FAQ() {
 
           {/* CTA */}
           <div className="faq-cta opacity-0 mt-14 flex flex-col items-center gap-5">
-            <p className="text-sm" style={{ color: "var(--muted)" }}>
+            <p className="serif-label text-sm" style={{ color: "var(--muted)" }}>
               Still have questions?
             </p>
             <button
