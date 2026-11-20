@@ -144,4 +144,4 @@ npm run build   # includes TypeScript; may need network access for Google Fonts,
 ## Open content items
 
 - **Booking:** every CTA (Hero, NavBar, Consultation, FAQ, Footer) scrolls to `#contact`, where the button opens the SimplePractice portal.
-- **Email inbox:** the domain has no mailbox (no root MX records), so `@tiffanyvenegaslcsw.com` addresses can't receive mail.
+- **Email:** `@tiffanyvenegaslcsw.com` mail runs on Google Workspace (root MX `smtp.google.com`), with Paubox for HIPAA-compliant sending. The single root SPF record (Vercel DNS) is `v=spf1 include:_spf.google.com include:_spf.paubox.com -all`. Edit that record rather than adding a second one, and add any new sending service to it.
