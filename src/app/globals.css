@@ -1330,6 +1330,15 @@ h1, h2 {
   max-width: 68ch;
 }
 
+.faq-accordion-description p + p {
+  margin-top: 0.8em;
+}
+
+.faq-accordion-description strong {
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
 .approach-click-media {
   position: relative;
   width: 100%;
@@ -1799,35 +1808,16 @@ h1, h2 {
   }
 }
 
-/* Contact: one sand card with two groups ("What would you like support
-   with?", then "How can I reach you?") and one Send button. */
+/* Contact: one sand card with the three booking steps and a button that opens
+   the SimplePractice client portal. The site itself collects no client details. */
 .contact-card {
   padding: 32px 32px 26px;
   border-radius: 22px;
   background: var(--sand);
 }
 
-.contact-swap {
-  display: grid;
-}
-
-.contact-swap > * {
-  grid-area: 1 / 1;
-}
-
-.contact-group {
-  display: grid;
-  gap: 4px;
-}
-
-.contact-group + .contact-group {
-  margin-top: 18px;
-  padding-top: 22px;
-  border-top: 1px solid var(--line);
-}
-
-.contact-group-title {
-  margin-bottom: 16px;
+.contact-card-title {
+  margin-bottom: 22px;
   color: var(--charcoal);
   font-family: var(--font-newsreader), Georgia, serif;
   font-size: 28px;
@@ -1836,289 +1826,74 @@ h1, h2 {
   letter-spacing: -0.01em;
 }
 
-.contact-group-title:has(+ .contact-hint) {
-  margin-bottom: 8px;
-}
-
-.contact-hint {
-  margin-bottom: 12px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.contact-field {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.contact-field label {
-  margin-bottom: 8px;
-  color: var(--espresso);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.contact-optional {
-  margin-left: 4px;
-  color: rgba(42, 43, 47, 0.5);
-  font-weight: 600;
-}
-
-.contact-control {
-  width: 100%;
-  height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  outline: none;
-  background: var(--white);
-  color: var(--charcoal);
-  font-size: 15px;
-}
-
-.contact-control--area {
-  height: auto;
-  min-height: 112px;
-  padding: 12px 14px;
-  line-height: 1.55;
-  resize: none;
-}
-
-.contact-control::placeholder {
-  color: rgba(42, 43, 47, 0.45);
-}
-
-.contact-control:focus {
-  border-color: var(--button);
-  box-shadow: 0 0 0 3px rgba(106, 74, 92, 0.2);
-}
-
-.contact-field[data-invalid] .contact-control {
-  border-color: #A3412F;
-}
-
-.contact-field[data-invalid] .contact-control:focus {
-  box-shadow: 0 0 0 3px rgba(163, 65, 47, 0.16);
-}
-
-/* Each field reserves a line for its error message from the start, so an
-   error never shifts the form */
-.contact-field-msg {
-  min-height: 20px;
-  padding-top: 5px;
-  color: #A3412F;
-  font-size: 12.5px;
-  line-height: 1.2;
-}
-
-.contact-two {
+.contact-steps {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0 16px;
+  gap: 18px;
+  margin-bottom: 28px;
 }
 
-.contact-field--full {
-  grid-column: 1 / -1;
-  margin-bottom: 20px;
-}
-
-/* The speciality field looks like the other fields and opens a menu below it */
-.contact-select {
-  position: relative;
-  margin-bottom: 18px;
-}
-
-.contact-select-trigger {
-  display: flex;
-  width: 100%;
-  min-height: 52px;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--white);
-  text-align: left;
-  cursor: pointer;
-}
-
-.contact-select-trigger:focus-visible,
-.contact-select[data-open] .contact-select-trigger {
-  border-color: var(--button);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(106, 74, 92, 0.2);
-}
-
-.contact-select-value {
+.contact-step {
   display: grid;
-  min-width: 0;
-  flex: 1;
-  gap: 2px;
-  line-height: 1.3;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
 }
 
-.contact-select-placeholder {
-  color: rgba(42, 43, 47, 0.45);
-  font-size: 15px;
-}
-
-.contact-select-name {
-  color: var(--charcoal);
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.contact-select-line {
-  color: var(--muted);
-  font-size: 12.5px;
-}
-
-.contact-select-chevron {
-  flex: none;
-  color: var(--muted);
-}
-
-.contact-select-menu {
-  position: absolute;
-  z-index: 5;
-  top: calc(100% + 6px);
-  right: 0;
-  left: 0;
-  padding: 6px;
-  border-radius: 14px;
-  outline: none;
-  background: var(--white);
-  box-shadow: 0 0 0 1px var(--line), 0 18px 40px rgba(43, 24, 10, 0.16);
-  list-style: none;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.97) translateY(-4px);
-  transform-origin: top center;
-  visibility: hidden;
-}
-
-.contact-select[data-open] .contact-select-menu {
-  opacity: 1;
-  pointer-events: auto;
-  transform: none;
-  visibility: visible;
-}
-
-.contact-select-option {
+.contact-step-num {
   display: grid;
-  grid-template-columns: 1fr 18px;
-  align-items: center;
-  gap: 2px 12px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  cursor: pointer;
-  line-height: 1.3;
-}
-
-.contact-select-option .contact-select-line {
-  grid-column: 1;
-}
-
-.contact-select-option[data-separated] {
-  position: relative;
-  margin-top: 13px;
-}
-
-.contact-select-option[data-separated]::before {
-  position: absolute;
-  top: -7px;
-  right: 8px;
-  left: 8px;
-  height: 1px;
-  background: var(--line);
-  content: "";
-}
-
-.contact-select-option[data-active] {
-  background: var(--sand);
-}
-
-.contact-select-check {
-  grid-row: 1 / span 2;
-  grid-column: 2;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(106, 74, 92, 0.12);
   color: var(--button);
-  opacity: 0;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.contact-select-option[aria-selected="true"] .contact-select-check {
-  opacity: 1;
+.contact-step-title {
+  padding-top: 5px;
+  color: var(--charcoal);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
-/* Send button: the idle, sending and sent states stack in one place, so the
-   button never changes size */
+.contact-step-copy {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
 .contact-foot {
   display: grid;
   gap: 10px;
-  margin-top: 6px;
 }
 
-.contact-send {
-  display: grid;
+.contact-portal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  height: 52px;
+  min-height: 52px;
+  padding: 0 20px;
   border-radius: 999px;
   background: var(--button);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 8px 22px rgba(69, 50, 61, 0.22);
   color: var(--button-ink);
-  cursor: pointer;
   font-size: 15px;
   font-weight: 700;
+  text-align: center;
 }
 
-.contact-send:focus-visible {
+.contact-portal:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--studio), 0 0 0 5px var(--button);
 }
 
-.contact-send[aria-disabled] {
-  pointer-events: none;
-}
-
-.contact-send-state {
-  display: inline-flex;
-  grid-area: 1 / 1;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  opacity: 0;
-}
-
-.contact-send[data-state="idle"] .contact-send-idle,
-.contact-send[data-state="sending"] .contact-send-sending,
-.contact-send[data-state="sent"] .contact-send-sent {
-  opacity: 1;
-}
-
-.contact-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(254, 247, 237, 0.35);
-  border-top-color: var(--button-ink);
-  border-radius: 50%;
-  animation: contact-spin 600ms linear infinite;
-}
-
-@keyframes contact-spin {
-  to { transform: rotate(360deg); }
-}
-
-.contact-error {
-  min-height: 0;
-  color: #A3412F;
-  font-size: 13px;
-  text-align: center;
-}
-
-.contact-error:empty {
-  display: none;
-}
-
+.contact-note,
 .contact-crisis {
   color: var(--muted);
   font-size: 12.5px;
@@ -2132,135 +1907,27 @@ h1, h2 {
   text-underline-offset: 2px;
 }
 
-/* Form and thank-you share one box, so the card keeps its height */
-.contact-thanks {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  opacity: 0;
-  pointer-events: none;
-  text-align: center;
-}
-
-.contact-swap[data-sent] .contact-form {
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.contact-swap[data-sent] .contact-thanks {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.contact-thanks-tick {
-  display: grid;
-  width: 52px;
-  height: 52px;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(106, 74, 92, 0.12);
-  color: var(--button);
-}
-
-.contact-thanks-title {
-  margin-top: 6px;
-  color: var(--charcoal);
-  font-family: var(--font-newsreader), Georgia, serif;
-  font-size: 30px;
-  font-weight: 300;
-  line-height: 1.1;
-}
-
-/* Contact.tsx focuses this heading after a send so keyboard users land here.
-   It is not a control, so it shows no outline. */
-.contact-thanks-title:focus {
-  outline: none;
-}
-
-.contact-thanks-copy {
-  color: var(--muted);
-  font-size: 15px;
-}
-
 @media (hover: hover) and (pointer: fine) {
-  .contact-control:hover,
-  .contact-select-trigger:hover {
-    border-color: rgba(43, 24, 10, 0.28);
-  }
-
-  .contact-send:hover {
+  .contact-portal:hover {
     background: var(--button-hover);
   }
 
-  .contact-send:hover .contact-send-arrow {
+  .contact-portal:hover .contact-portal-arrow {
     transform: translateX(3px);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .contact-control,
-  .contact-select-trigger {
-    transition: border-color 150ms ease, box-shadow 150ms ease;
-  }
-
-  .contact-select-chevron {
-    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .contact-select[data-open] .contact-select-chevron {
-    transform: rotate(180deg);
-  }
-
-  .contact-select-menu {
-    transition: opacity 120ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1), visibility 0s 120ms;
-  }
-
-  .contact-select[data-open] .contact-select-menu {
-    transition: opacity 180ms ease, transform 180ms cubic-bezier(0.23, 1, 0.32, 1), visibility 0s;
-  }
-
-  .contact-send {
+  .contact-portal {
     transition: background-color 150ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  .contact-send:active {
+  .contact-portal:active {
     transform: scale(0.97);
   }
 
-  .contact-send-arrow {
+  .contact-portal-arrow {
     transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .contact-send-state {
-    filter: blur(2px);
-    transition: opacity 200ms ease, filter 200ms ease;
-  }
-
-  .contact-send[data-state="idle"] .contact-send-idle,
-  .contact-send[data-state="sending"] .contact-send-sending,
-  .contact-send[data-state="sent"] .contact-send-sent {
-    filter: none;
-  }
-
-  .contact-form {
-    transition: opacity 200ms ease, visibility 0s;
-  }
-
-  .contact-swap[data-sent] .contact-form {
-    transition: opacity 200ms ease, visibility 0s 200ms;
-  }
-
-  .contact-thanks {
-    transform: translateY(8px);
-    transition: opacity 300ms ease, transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .contact-swap[data-sent] .contact-thanks {
-    transform: none;
-    transition-delay: 120ms;
   }
 }
 
@@ -2270,12 +1937,8 @@ h1, h2 {
     border-radius: 18px;
   }
 
-  .contact-group-title {
+  .contact-card-title {
     font-size: 25px;
-  }
-
-  .contact-two {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
