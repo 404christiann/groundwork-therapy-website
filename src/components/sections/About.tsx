@@ -7,11 +7,9 @@ import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CREDENTIALS = [
-  { tag: "University of San Francisco", detail: "B.A. Psychology" },
-  { tag: "University of California, Los Angeles", detail: "Master of Social Welfare" },
-  { tag: "Harbor UCLA Medical Center", detail: "CalWORKs Program" },
-  { tag: "Didi Hirsch Mental Health Services", detail: "High Acuity Clinical Work" },
+const EDUCATION = [
+  { degree: "B.A. Psychology", school: "University of San Francisco" },
+  { degree: "Master of Social Welfare", school: "University of California, Los Angeles" },
 ];
 
 export default function About() {
@@ -99,17 +97,17 @@ export default function About() {
             </p>
           </div>
 
-          {/* Credentials */}
+          {/* Education */}
           <div className="about-reveal about-background opacity-0">
-            <p className="about-background-title">Background</p>
-            <div className="about-credentials">
-              {CREDENTIALS.map((credential) => (
-                <div key={credential.tag} className="about-credential">
-                  <p>{credential.tag}</p>
-                  <span>{credential.detail}</span>
-                </div>
+            <p className="about-background-title">Education</p>
+            <ul className="about-credentials" role="list">
+              {EDUCATION.map((item) => (
+                <li key={item.degree} className="about-credential">
+                  <p>{item.degree}</p>
+                  <span>{item.school}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       </div>
