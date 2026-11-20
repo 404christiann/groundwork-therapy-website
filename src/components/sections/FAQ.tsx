@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FAQS = [
+const FAQS: { q: string; a: ReactNode }[] = [
   {
     q: "How much does a session cost?",
-    a: "Sessions are $160 for a 55 minute appointment. If cost feels like a barrier, reach out. I'm happy to have an honest conversation about it.",
+    a: "Sessions are $140 for a 55-minute appointment. If cost feels like a barrier, reach out. I'm happy to have an honest conversation about it.",
   },
   {
     q: "Do you accept insurance?",
@@ -18,11 +18,36 @@ const FAQS = [
   },
   {
     q: "How long are sessions and how often will we meet?",
-    a: "Sessions are 55 minutes. Most clients start with weekly appointments. That consistency is what creates momentum and allows the work to actually build over time.",
+    a: "Our sessions are 55 minutes, so it's helpful to block off a full hour in your calendar. Most people start out coming weekly. Having that steady rhythm really helps create momentum so our work can build on itself. Once you're hitting your goals, we'll figure out a step-down plan together that feels comfortable for you.",
   },
   {
     q: "Is therapy online only?",
-    a: "Yes, all sessions happen over telehealth. That means you can join from your home, your car, or your office, anywhere in California. No commute, no waiting room. Just a private space and a reliable internet connection.",
+    a: "All sessions take place via telehealth, so you can join from anywhere in California, whether that's your home, your office, or a parked car. Just keep in mind that for safety reasons, you cannot be driving during our appointment. There's no commute and no waiting room; all you need is a private space and a reliable internet connection.",
+  },
+  {
+    q: "What is your cancellation policy?",
+    a: (
+      <>
+        <p>
+          Clients who benefit the most from therapy attend consistently each week, as your appointment time is held
+          exclusively for you. That said, I know schedules change and unexpected things come up.
+        </p>
+        <p>
+          You are allowed up to <strong>4 fee-free cancellations per calendar year</strong>, as long as you give at
+          least one week&apos;s notice. If you cancel more than 4 sessions in a calendar year for any reason, you will be
+          responsible for the full session fee.
+        </p>
+        <p>
+          If you do need to cancel, please let me know as far in advance as possible. Any session canceled with{" "}
+          <strong>less than 24 hours&apos; notice</strong>{" "}
+          is considered a late cancellation; these are billed at the full
+          session fee and do not count toward your 4 annual cancellations. You&apos;re always welcome to ask about
+          rescheduling to another time that week, though if we can&apos;t find a mutual time to make it up, the full fee
+          still applies and will be charged at your regularly scheduled session time. Of course, if I ever need to
+          cancel, you will never be charged.
+        </p>
+      </>
+    ),
   },
   {
     q: "What is a Good Faith Estimate?",
@@ -34,7 +59,7 @@ const FAQS = [
   },
   {
     q: "How do I get started?",
-    a: "Start by scheduling a free 20 minute consultation. It's a low pressure conversation where we can connect and see if working together feels right. No commitment required.",
+    a: "Start by scheduling a free 20-minute consultation through my secure client portal. It's a low-pressure conversation where we can connect and see if working together feels right. No commitment required.",
   },
 ];
 
@@ -49,7 +74,7 @@ function FAQItem({
   reduceMotion,
 }: {
   q: string;
-  a: string;
+  a: ReactNode;
   index: number;
   open: boolean;
   onToggle: () => void;
@@ -94,7 +119,7 @@ function FAQItem({
             transition={{ duration: reduceMotion ? 0 : 0.3, ease: FAQ_EASE }}
             className="overflow-hidden"
           >
-            <p className="approach-click-description faq-accordion-description">{a}</p>
+            <div className="approach-click-description faq-accordion-description">{a}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -158,7 +183,7 @@ export default function FAQ() {
 
         {/* Header */}
         <div ref={headingRef} className="opacity-0 mb-14 md:mb-20">
-          <p className="text-sm uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: "var(--button)" }}>
+          <p className="serif-label text-sm uppercase tracking-[0.25em] mb-6" style={{ color: "var(--button)" }}>
             Common Questions
           </p>
           <h2
@@ -194,7 +219,7 @@ export default function FAQ() {
 
           {/* CTA */}
           <div className="faq-cta opacity-0 mt-14 flex flex-col items-center gap-5">
-            <p className="text-sm" style={{ color: "var(--muted)" }}>
+            <p className="serif-label text-sm" style={{ color: "var(--muted)" }}>
               Still have questions?
             </p>
             <button

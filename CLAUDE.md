@@ -2,7 +2,7 @@
 
 ## What this is
 
-Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a telehealth therapist for teens and adults in California. Next.js on Vercel. The contact form emails Tiffany through Resend.
+Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a telehealth therapist for teens and adults in California. Next.js on Vercel. Booking and client messages go through her SimplePractice client portal (https://tiffanyvenegaslcsw.clientsecure.me); the site collects no client details because its old form wasn't HIPAA compliant.
 
 - **Production:** https://www.tiffanyvenegaslcsw.com (domain bought and DNS managed in Vercel, team `404christianns-projects`; the `groundwork-therapy-website.vercel.app` alias still works). Pushes to `main` auto-deploy via Vercel.
 - **Remote:** `https://github.com/404christiann/groundwork-therapy-website.git`
@@ -18,9 +18,8 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 |---|---|
 | Framework | Next.js 16.2.5 (App Router, TypeScript, Turbopack), React 19 |
 | Styling | Tailwind CSS v4, but most styling is named CSS classes in `src/app/globals.css` |
-| Animation | GSAP + ScrollTrigger (scroll reveals), Framer Motion (accordions, tabs, menu, form, Specialities copy swap) |
+| Animation | GSAP + ScrollTrigger (scroll reveals), Framer Motion (accordions, tabs, menu, Specialities copy swap) |
 | Icons | `lucide-react` (Consultation accordion) |
-| Backend | `src/app/api/contact/route.ts` sends the form by email via Resend's REST API (no SDK) |
 | Fonts | Newsreader 300 (display headings, wordmark), Nunito (body/UI), Jost (loaded in `layout.tsx` but `--font-jost` is currently unused), all via `next/font/google` |
 
 `page.tsx` is a client component that renders every section.
@@ -32,7 +31,7 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 - **Palette** (tokens in `globals.css`): cream page `--studio`/`--ivory` `#FEF7ED`, secondary panels `--sand` `#F5EBDD`, text `--charcoal` `#2A2B2F`, accent `--accent` Sunshine `#FFD43B`, small accent text `--accent-ink` `#785500`.
 - **Hero** uses its own photo gray `#DCD2D0`; the mobile header matches it until 80px of scroll, then turns cream.
 - **Footer** is Dusty Plum `--footer` `#45323D` with white text and white logo, in the approved "Quiet Center" layout: one centred column (tree mark + lockup, tagline, nav, one-line license, 988 crisis pill, legal). The user asked for moderate white space, not the roomier preview, so keep the spacing in the `.site-footer` block of `globals.css`.
-- **Filled buttons** (nav Connect, hero "Let's connect" pill with arrow, mobile menu CTA, Consultation, FAQ, Contact submit, Specialities next arrow) are Dusty Plum `--button` `#6A4A5C` with cream `--button-ink` text, hovering to `--button-hover` `#553A49`. Plum also covers the About bio card (`--footer`) and the scrollbar thumb (`--button`). The page background stays cream.
+- **Filled buttons** (nav Connect, hero "Let's connect" pill with arrow, mobile menu CTA, Consultation, FAQ, Contact portal button, Specialities next arrow) are Dusty Plum `--button` `#6A4A5C` with cream `--button-ink` text, hovering to `--button-hover` `#553A49`. Plum also covers the About bio card (`--footer`) and the scrollbar thumb (`--button`). The page background stays cream.
 - **Nav logos** (desktop, mobile header, open mobile menu) scroll back to the top of the landing page and clear any `#hash`. A plain `Link href="/"` is a no-op on this one-page site, so keep `handleLogoClick` / `scrollToLanding` in `NavBar.tsx`.
 - Legacy token names (`--teal-*`, `--cream`, `--warm-white`, `--gold`, `--font-playfair`) are aliases to the current palette and Newsreader. They are **not** instructions to restore the old teal/Playfair design.
 - **Brand:** the tree mark `/images/mark-ink.png` plus the name lockup in `src/components/ui/BrandWordmark.tsx`: "Tiffany Venegas" over a spaced "LCSW" with thin rules running to the name's edges. The favicon and `src/app/icon.png` use the tree mark.
@@ -41,8 +40,8 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
   - The page title, Open Graph and Twitter titles, and the footer copyright read "Tiffany Venegas, LCSW". "Ground Work Therapy" remains only in the About photo alt text.
   - Link previews (iMessage, Slack, social) use `src/app/opengraph-image.png`: the tree mark on cream, 1200×630, made from `public/images/mark-ink.png`. Without it, iMessage picks the hero portrait. `metadataBase` in `layout.tsx` makes the image URL absolute.
 - **Hero heading:** `Where insight` / italic `becomes change.`, and the second line must stay on one line, including mobile.
-- **Every accent on the site is Dusty Plum** (site-wide audit, Nov 2026): buttons, eyebrows, counters, icons, plus signs, focus rings, glows, the highlighter and text selection. No `--accent` / `--accent-ink` (yellow, gold) remain in use; the legacy aliases `--teal-*`, `--gold` and `--text-light` now point at `--button`. Deliberately not plum: the six speciality card colours, the hero photo grey `#DCD2D0`, warm neutral shadows, and the red form-error text.
-- **Accordion accents are Dusty Plum `--button`** (Nov 2026, replacing the earlier neutral rule): the "Is this you?" icons (no background circle) and plus signs, the FAQ and Approach plus signs, and the FAQ trigger focus ring. The "Common Questions" and "Get in Touch" eyebrows are plum too, as are the Contact checkmarks (detail list and "Message received"). The mobile menu's four links are plum as well. The highlighter under "you?", "want to know." and "what's possible?" (`.accent-highlight`) is the plum tint `--highlight` `#E6BCD4`; plain low opacity of `--button` read grey. Text selection uses `--highlight` too. The Approach section ("When the work starts to click.") uses plum for its plus signs, focus rings, background glow and the selected mobile gallery tab. Specialities uses plum for its "01 / 06" counter, the filled next arrow and the arrow focus rings; the six card colours stay as they are.
+- **Every accent on the site is Dusty Plum** (site-wide audit, Nov 2026): buttons, eyebrows, counters, icons, plus signs, focus rings, glows, the highlighter and text selection. No `--accent` / `--accent-ink` (yellow, gold) remain in use; the legacy aliases `--teal-*`, `--gold` and `--text-light` now point at `--button`. Deliberately not plum: the six speciality card colours, the hero photo grey `#DCD2D0` and warm neutral shadows.
+- **Accordion accents are Dusty Plum `--button`** (Nov 2026, replacing the earlier neutral rule): the "Is this you?" icons (no background circle) and plus signs, the FAQ and Approach plus signs, and the FAQ trigger focus ring. The "Common Questions" and "Get in Touch" eyebrows are plum too, as are the Contact checkmarks and step numbers. The mobile menu's four links are plum as well. The highlighter under "you?", "want to know." and "what's possible?" (`.accent-highlight`) is the plum tint `--highlight` `#E6BCD4`; plain low opacity of `--button` read grey. Text selection uses `--highlight` too. The Approach section ("When the work starts to click.") uses plum for its plus signs, focus rings, background glow and the selected mobile gallery tab. Specialities uses plum for its "01 / 06" counter, the filled next arrow and the arrow focus rings; the six card colours stay as they are.
 - **Specialities:** a loose deck of the six colored cards (chosen from four stageshow concepts, Nov 2026), dealt with arrow buttons, arrow keys or a swipe. Card images use `object-fit: cover` (the `contain` experiment was rejected). The filled arrow uses the plum `--button` tokens.
 - **Mobile Approach:** a tabbed gallery below 900px, with artwork intentionally `contain`.
 - **Photos:** don't recompress, regenerate or swap `public/images/groundWorkTherapyHome.jpg` (hero, `unoptimized`) or `groundWorkTherapyAbout.jpg`.
@@ -60,8 +59,8 @@ Single-page private practice site for **Tiffany Venegas, LCSW #130210**, a teleh
 | 3 | `sections/About.tsx` | `#about` | Photo, bio, `CREDENTIALS` array |
 | 4 | `sections/Approach.tsx` | `#approach` | `PILLARS` (Resilience / Presence / Connection); desktop layout plus mobile tab gallery |
 | 5 | `sections/Services.tsx` | `#services` | Labeled "Specialities"; its own 6-item `SERVICES` array; card deck with the copy beside the pile |
-| 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, Good Faith Estimate) |
-| 7 | `sections/Contact.tsx` | `#contact` | One-step form that posts to `/api/contact`, which emails Tiffany. "What would you like support with?" (speciality menu + message), then "How can I reach you?" (name, email, optional phone), one Send |
+| 6 | `sections/FAQ.tsx` | `#faq` | `FAQS` accordion (rates, insurance/superbill, telehealth, cancellation policy, Good Faith Estimate) |
+| 7 | `sections/Contact.tsx` | `#contact` | Heading and three checkmarks on the left; a "What happens next" card on the right (three steps) with a button that opens the SimplePractice client portal in a new tab. No form |
 | 8 | `ui/Footer.tsx` | none | Centred "Quiet Center" footer: brand (back to top), `NAV_LINKS` + Connect, license line, 988 crisis pill |
 
 - `section[id]` has `scroll-margin-top: 96px`, and every nav destination should land about 96px below the top. Keep these IDs stable.
@@ -77,9 +76,9 @@ Most copy is hardcoded in the component that renders it:
 - `About.tsx`: `CREDENTIALS` and bio JSX
 - `Approach.tsx`: `PILLARS`
 - `Services.tsx`: `SERVICES` (the live Specialities content, colors, images in `public/images/stack-services/`)
-- `FAQ.tsx`: `FAQS`
-- `Contact.tsx`: `DETAILS` (the three facts) and `SPECIALITY_OPTIONS` (the speciality menu, with a plain-language line per option; the list lives in `src/lib/content.ts` because the API route uses it too, and `general` is "Not sure yet")
-- `src/lib/content.ts`: `NAV_LINKS` and `SPECIALITY_OPTIONS` (shared by the form and the API route).
+- `FAQ.tsx`: `FAQS` (an answer can be JSX, as the cancellation policy is, for paragraphs and bold text)
+- `Contact.tsx`: `DETAILS` (the three facts) and `STEPS` ("What happens next")
+- `src/lib/content.ts`: `NAV_LINKS` and `CLIENT_PORTAL_URL` (the SimplePractice portal, ready for other booking buttons to use).
 
 ---
 
@@ -95,12 +94,8 @@ Most copy is hardcoded in the component that renders it:
 - It uses a pending-destination ref, returns focus to the toggle with `preventScroll`, and unlocks scroll on close.
 - The active nav item tracks the *last* section containing the marker.
 
-**Contact form (`Contact.tsx` + `.contact-*` in `globals.css`):**
-- Validation is in the component (`noValidate`): message, name and a valid email are required. Every field reserves a line for its error so nothing shifts, the first invalid field gets focus, and an error clears as soon as it's fixed.
-- The speciality field is a custom listbox (button + `role="listbox"`), keyboard-complete (arrows, Home/End, Enter, Escape returns focus) and closes on outside click.
-- Send has idle / sending / sent stacked in one place; on success the thank-you takes the card's box so the height doesn't jump. A failed submit shows "Something went wrong" and returns the button to idle.
-- Never submit the real form while verifying. Test `/api/contact` with `CONTACT_TO_EMAIL=delivered@resend.dev` (Resend's test inbox).
-- A hidden spam-trap input (`hp_field`, sent to the route as `website`) catches bots: if it's filled, the route returns success without sending. Its name and label deliberately match no autofill type so browsers leave it empty.
+**Contact (`Contact.tsx` + `.contact-*` in `globals.css`):**
+- Don't add a form or any field that collects client details back to the site; it isn't HIPAA compliant. Booking and messages go through the SimplePractice portal link.
 
 **Animation conventions:**
 - GSAP-revealed elements start with `opacity-0` and use `gsap.context()` cleanup.
@@ -108,12 +103,9 @@ Most copy is hardcoded in the component that renders it:
 
 ---
 
-## Contact email (Resend)
+## Contact (SimplePractice)
 
-- Resend account: Christian's. Domain `tiffanyvenegaslcsw.com` is verified there (DKIM `resend._domainkey`, `send` MX/TXT, `rsend` CNAME, all in Vercel DNS).
-- Vercel env vars (production + preview): `RESEND_API_KEY` (sensitive, send-only key restricted to this domain) and `CONTACT_TO_EMAIL` (Tiffany's inbox). Missing either makes the route return 500 and the form show "Something went wrong".
-- The route validates and trims fields itself, then sends a plain-text email: subject "New website message from {name}", reply-to the visitor.
-- No copy of messages is stored anywhere except Resend's sent log. The old Supabase client, migration and packages were removed.
+- The old Resend email form and `/api/contact` route were removed (Nov 2026) because the form wasn't HIPAA compliant. The `RESEND_API_KEY` and `CONTACT_TO_EMAIL` Vercel env vars and the Resend domain setup are no longer used by the site.
 
 ## Running and verifying
 
@@ -151,5 +143,5 @@ npm run build   # includes TypeScript; may need network access for Google Fonts,
 
 ## Open content items
 
-- **Booking:** every CTA (Hero, NavBar, Consultation, FAQ, Footer) scrolls to `#contact`. If the therapist adopts a scheduler (SimplePractice, Jane, etc.), swap in its URL.
-- **Email inbox:** the domain has no mailbox (no root MX records), so `@tiffanyvenegaslcsw.com` addresses can't receive mail. Form emails come from `website@tiffanyvenegaslcsw.com` with reply-to set to the visitor.
+- **Booking:** every CTA (Hero, NavBar, Consultation, FAQ, Footer) scrolls to `#contact`, where the button opens the SimplePractice portal.
+- **Email inbox:** the domain has no mailbox (no root MX records), so `@tiffanyvenegaslcsw.com` addresses can't receive mail.

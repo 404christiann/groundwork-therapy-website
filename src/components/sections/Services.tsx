@@ -12,7 +12,7 @@ const SERVICES = [
     label: "ACT",
     name: "Acceptance & Commitment Therapy",
     description:
-      "Notice and step back from unhelpful thought loops so your values, not anxiety, can guide your choices. ACT is especially useful for perfectionism, worry, and feeling stuck despite self-awareness.",
+      "Stop letting anxiety run the show. Step back from the mental loops and make choices based on what you actually care about, especially if you're a self-aware overthinker.",
     color: "#9FBF2D",
     imageSrc: "/images/stack-services/service1.png",
     imagePosition: "center 30%",
@@ -23,7 +23,7 @@ const SERVICES = [
     label: "CBT",
     name: "Cognitive Behavioral Therapy",
     description:
-      "Identify the thought patterns and behaviors maintaining your struggles, then work systematically to shift them. It is practical, structured work designed to create meaningful change.",
+      "Unpack the thoughts and habits holding you back, then build ones that are more workable. It's real, structured progress, not just talking in circles.",
     color: "#0083A1",
     imageSrc: "/images/stack-services/service2.png",
     imagePosition: "center center",

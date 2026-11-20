@@ -75,7 +75,7 @@ export default function About() {
           </h2>
 
           <p className="about-reveal about-role opacity-0">
-            LCSW (she/her)
+            MSW, LCSW (she/her)
           </p>
 
           <p className="about-reveal about-intro opacity-0">
@@ -84,18 +84,18 @@ export default function About() {
 
           <div className="about-bio">
             <p className="about-reveal opacity-0">
-              Hi, I&apos;m Tiffany! I use humor to keep things human and grounded, while bringing the structure and
-              directness needed to create real change. I won&apos;t let you stay stuck.
+              If you&apos;re the person everyone relies on, the high-functioning overthinker who looks
+              put-together on the outside while quietly burning out on the inside… you&apos;re in the right place.
             </p>
             <p className="about-reveal opacity-0">
-              I earned my B.S. in Psychology from the University of San Francisco before completing
-              my MSW at UCLA with an emphasis in health and mental health across the lifespan.
-              My clinical training spanned school aged children at West End Family Counseling,
-              the CalWORKs program at Harbor UCLA, and high acuity work at Didi Hirsch in Glendale.
+              You don&apos;t need to be &ldquo;fixed,&rdquo; and you don&apos;t need a therapist who just nods while you
+              vent. Together, we&apos;ll untangle old patterns, quiet the mental noise, and build practical skills for
+              boundaries and confidence.
             </p>
             <p className="about-reveal opacity-0">
-              I&apos;m now building my private practice working with both teens and adults, bringing
-              the same curiosity, warmth, and directness to every session.
+              As a 1.5-generation Mexican-Puerto Rican American and eldest daughter, I bring lived cultural humility
+              alongside humor and real talk. No clinical jargon, no passive nodding, just a grounded space to finally
+              put yourself first.
             </p>
           </div>
 

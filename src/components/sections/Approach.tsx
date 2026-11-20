@@ -10,7 +10,7 @@ const PILLARS = [
     tabLabel: "Resilience",
     name: "Resilience over Perfection",
     description:
-      "Realizing that a sink of dirty dishes or a \"messy\" day isn't a moral failure.",
+      "Learning that life doesn't have to be perfect for you to feel happy.",
     imageSrc: "/images/starts-to-click/resilience-over-perfection.png",
     imageAlt:
       "Illustration of a person balancing a range of emotions with resilience",
@@ -20,7 +20,7 @@ const PILLARS = [
     tabLabel: "Presence",
     name: "Presence over Pressure",
     description:
-      "Moving from the \"frozen\" state of survival mode to actually owning your day.",
+      "Outgrowing your old patterns to step into what serves you now.",
     imageSrc: "/images/starts-to-click/presence-over-pressure.png",
     imageAlt:
       "Illustration of a person breathing deeply and returning to the present moment",
@@ -30,7 +30,7 @@ const PILLARS = [
     tabLabel: "Connection",
     name: "Deeper Connections",
     description:
-      "Having the emotional bandwidth to be curious about the people you love, rather than just reacting to them.",
+      "Having the bandwidth to pause, stay curious, and choose your response with the people you love, instead of just reacting on autopilot.",
     imageSrc: "/images/starts-to-click/deeper-connections.png",
     imageAlt: "Illustration of two people building connection together",
   },
